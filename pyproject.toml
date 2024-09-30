@@ -2,7 +2,6 @@
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
-
 [project]
 name = "nwmps"
 authors = [{ name = "Aquaveo LLC", email = "gromero@aquaveo.com" }]
@@ -27,9 +26,9 @@ dependencies = [
     "geoalchemy2",
 ]
 
-
 [project.entry-points."intake.drivers"]
 nwmp_data_service = "nwmps.service:NWMPService"
+nwmp_map = "nwmps.olmap:MapVisualization"
 
 [tool.setuptools]
 include-package-data = true

@@ -1,4 +1,5 @@
 from pygeohydro import WBD
+import json
 
 
 # Define a function to convert MultiLineString with 3 dimensions to 2 dimensions
@@ -36,6 +37,51 @@ def get_all_huc_codes(level=4):
     pass
 
 
+BASEMAP_LAYERS_DROPDOWN = [
+    {
+        "label": "Esri Basemaps",
+        "options": [
+            {
+                "label": "World Light Gray Base",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
+            },
+            {
+                "label": "World Topo Map",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
+            },
+            {
+                "label": "World Imagery",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+            },
+            {
+                "label": "World Terrain Base",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer",
+            },
+            {
+                "label": "World Street Map",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer",
+            },
+            {
+                "label": "World Physical Map",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer",
+            },
+            {
+                "label": "World Shaded Relief",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer",
+            },
+            {
+                "label": "World Terrain Reference",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
+            },
+            {
+                "label": "World Transportation",
+                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Transportation/MapServer",
+            },
+        ],
+    }
+]
+
+
 BASE_URL_SERVICES = "https://maps.water.noaa.gov/server/rest/services/nwm"
 
 
@@ -52,6 +98,52 @@ BASEMAP_LAYERS = [
             }
         },
     }
+]
+
+LAYERS = [
+    {
+        "type": "WebGLTile",
+        "props": {
+            "source": {
+                "type": "ImageTile",
+                "props": {
+                    "url": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+                    "attributions": 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
+                },
+            }
+        },
+    },
+    {
+        "type": "ImageLayer",
+        "props": {
+            "source": {
+                "type": "ImageArcGISRest",
+                "props": {
+                    "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer",
+                    "params": {"LAYERS": "hide:0"},
+                },
+            }
+        },
+    },
+    {
+        "type": "ImageLayer",
+        "props": {
+            "source": {
+                "type": "ImageArcGISRest",
+                "props": {
+                    "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water/riv_gauges/MapServer",
+                    "params": {
+                        "LAYERS": "show:0",
+                        "layerDefs": json.dumps(
+                            {
+                                "0": "status = 'action' or status='minor' or status='moderate' or status='major'"
+                            }
+                        ),
+                    },
+                },
+            }
+        },
+    },
 ]
 
 
@@ -300,7 +392,17 @@ DATA_SERVICES = {
 }
 
 SERVICES_DROPDOWN = [
-    {"label": key.replace("_", " "), "value": key} for key in DATA_SERVICES
+    {
+        "label": service["name"],
+        "options": [
+            {
+                "label": layer["name"],
+                "value": f'{service_key}-{layer["id"]}',
+            }
+            for layer in service["layers"]
+        ],
+    }
+    for service_key, service in DATA_SERVICES.items()
 ]
 
 

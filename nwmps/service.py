@@ -1,7 +1,13 @@
 import shapely.wkt
 import shapely
 
-from .utilities import _to_2d, get_service_layers, DATA_SERVICES, SERVICES_DROPDOWN
+from .utilities import (
+    _to_2d,
+    get_service_layers,
+    DATA_SERVICES,
+    SERVICES_DROPDOWN,
+    LAYERS,
+)
 
 from geoalchemy2 import WKTElement
 import shapely
@@ -21,20 +27,20 @@ class NWMPService(base.DataSource):
         # at the end some sort of json containing the map with the layers needed: on this case the HUCs boundaries, and base map of interest
         # by default the map will have the controllers to turn on and off layers
         # should be something like click on the map, then select huc (only one), then make a vector layer to show the boundary
+        # "plugin": LAYERS,
         "huc_level": ["huc4"],
         "huc_ids": ["0201", "0202"],  # this input needs to depend on the huc_level
-        "service": SERVICES_DROPDOWN,
-        "layer_id": get_service_layers(),
+        "service_and_layer_id": SERVICES_DROPDOWN,
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Data Service"
-    visualization_type = "table"
+    visualization_type = "card"
 
-    def __init__(self, service, layer_id, huc_level, huc_ids, metadata=None):
+    def __init__(self, service_and_layer_id, huc_level, huc_ids, metadata=None):
         # store important kwargs
         self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
-        self.service = service
-        self.layer_id = layer_id
+        self.service = service_and_layer_id.split("-")[0]
+        self.layer_id = service_and_layer_id.split("-")[1]
         self.huc_level = huc_level
         self.huc_ids = huc_ids
         self.geom = None
