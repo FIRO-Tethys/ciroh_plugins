@@ -95,8 +95,13 @@ class MapVisualization(base.DataSource):
         layer_dict = {}
         layer_dict["type"] = "ImageLayer"
         layer_dict["prop"] = {
-            "url": service_url,
-            "params": {"LAYERS": f"show:{self.layer_id}"},
+            "source": {
+                "type": "ImageArcGISRest",
+                "props": {
+                    "url": service_url,
+                    "params": {"LAYERS": f"show:{self.layer_id}"},
+                },
+            }
         }
         return layer_dict
 
