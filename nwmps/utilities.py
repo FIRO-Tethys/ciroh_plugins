@@ -299,3 +299,16 @@ DATA_SERVICES = {
     },
 }
 
+SERVICES_DROPDOWN = [
+    {"label": key.replace("_", " "), "value": key} for key in DATA_SERVICES
+]
+
+
+def get_service_layers():
+    layers = []
+    # Iterate over DATA_SERVICES
+    for service_key, service_value in DATA_SERVICES.items():
+        for layer in service_value["layers"]:
+            obj = {"label": layer["name"], "value": f"{layer['id']}"}
+            layers.append(obj)
+    return layers

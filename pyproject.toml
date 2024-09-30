@@ -1,10 +1,39 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 
 [project]
 name = "nwmps"
 authors = [{ name = "Aquaveo LLC", email = "gromero@aquaveo.com" }]
 license = { file = "LICENSE" }
 classifiers = ["License :: OSI Approved :: MIT License"]
-dynamic = ["version", "description"]
+version = "0.0.1"
+description = "A Plugin package to access the National Water Model (NWM) dataservices"
+requires-python = ">=3.6"
+dependencies = [
+    "intake>=0.6.6",
+    "pandas",
+    "numpy",
+    "requests",
+    "shapely",
+    "pyproj",
+    "geopandas",
+    "pynhd",
+    "pygeoogc",
+    "pygeoutils",
+    "pygeohydro",
+    "arcgis",
+    "geoalchemy2",
+]
+
+
+[project.entry-points."intake.drivers"]
+nwmp_data_service = "nwmps.service:NWMPService"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["*"]
