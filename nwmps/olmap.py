@@ -36,6 +36,7 @@ class MapVisualization(base.DataSource):
     def read(self):
         """Return a version of the xarray with all the data in memory"""
         layers = [self.basemap_layer, self.service_layer]
+        # layers = LAYERS
         return {"layers": layers}
 
     def get_service_layers(self):
@@ -94,7 +95,7 @@ class MapVisualization(base.DataSource):
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
         layer_dict = {}
         layer_dict["type"] = "ImageLayer"
-        layer_dict["prop"] = {
+        layer_dict["props"] = {
             "source": {
                 "type": "ImageArcGISRest",
                 "props": {
@@ -108,7 +109,7 @@ class MapVisualization(base.DataSource):
     def get_esri_base_layer_dict(self, basemap_layer):
         layer_dict = {}
         layer_dict["type"] = "WebGLTile"
-        layer_dict["prop"] = {
+        layer_dict["props"] = {
             "source": {
                 "type": "ImageTile",
                 "props": {

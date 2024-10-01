@@ -113,37 +113,37 @@ LAYERS = [
             }
         },
     },
-    {
-        "type": "ImageLayer",
-        "props": {
-            "source": {
-                "type": "ImageArcGISRest",
-                "props": {
-                    "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer",
-                    "params": {"LAYERS": "hide:0"},
-                },
-            }
-        },
-    },
-    {
-        "type": "ImageLayer",
-        "props": {
-            "source": {
-                "type": "ImageArcGISRest",
-                "props": {
-                    "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water/riv_gauges/MapServer",
-                    "params": {
-                        "LAYERS": "show:0",
-                        "layerDefs": json.dumps(
-                            {
-                                "0": "status = 'action' or status='minor' or status='moderate' or status='major'"
-                            }
-                        ),
-                    },
-                },
-            }
-        },
-    },
+    # {
+    #     "type": "ImageLayer",
+    #     "props": {
+    #         "source": {
+    #             "type": "ImageArcGISRest",
+    #             "props": {
+    #                 "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer",
+    #                 "params": {"LAYERS": "hide:0"},
+    #             },
+    #         }
+    #     },
+    # },
+    # {
+    #     "type": "ImageLayer",
+    #     "props": {
+    #         "source": {
+    #             "type": "ImageArcGISRest",
+    #             "props": {
+    #                 "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water/riv_gauges/MapServer",
+    #                 "params": {
+    #                     "LAYERS": "show:0",
+    #                     "layerDefs": json.dumps(
+    #                         {
+    #                             "0": "status = 'action' or status='minor' or status='moderate' or status='major'"
+    #                         }
+    #                     ),
+    #                 },
+    #             },
+    #         }
+    #     },
+    # },
 ]
 
 
