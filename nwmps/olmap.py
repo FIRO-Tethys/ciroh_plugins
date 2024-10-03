@@ -4,11 +4,14 @@ from .utilities import (
     LAYERS,
     SERVICES_DROPDOWN,
     BASEMAP_LAYERS_DROPDOWN,
+    CLIPP,
 )
 
 from intake.source import base
 from shapely.geometry import Point, LineString, Polygon
 from arcgis.geometry import Geometry
+import json
+from pyproj import Transformer
 
 
 class MapVisualization(base.DataSource):
@@ -31,13 +34,18 @@ class MapVisualization(base.DataSource):
         self.basemap_layer = self.get_esri_base_layer_dict(basemap_layer)
         self.service_layer = self.get_service_layer_dict()
         self.geom = None
+        self.view = self.get_view_config(center=[-110.875, 37.345], zoom=5)
         super(MapVisualization, self).__init__(metadata=metadata)
 
     def read(self):
         """Return a version of the xarray with all the data in memory"""
+        print("Reading data from MapVisualization")
         layers = [self.basemap_layer, self.service_layer]
         # layers = LAYERS
-        return {"layers": layers}
+        return {
+            "layers": layers,
+            "view_config": self.view,
+        }
 
     def get_service_layers(self):
         result = []
@@ -89,7 +97,6 @@ class MapVisualization(base.DataSource):
     def arcGisGeomObject(self, esri_geom_dict):
         return Geometry(esri_geom_dict)
 
-    # TODO: make a function that allows the user to find the layers of a service by name from DATA_SERVICES using a layer_list
     def get_service_layer_dict(self):
         self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
@@ -100,7 +107,16 @@ class MapVisualization(base.DataSource):
                 "type": "ImageArcGISRest",
                 "props": {
                     "url": service_url,
-                    "params": {"LAYERS": f"show:{self.layer_id}"},
+                    # "params": {
+                    #     "LAYERS": f"show:{self.layer_id}",
+                    #     "spatialFilter": json.dumps(
+                    #         {
+                    #             "spatialRel": "esriSpatialRelContains",
+                    #             "geometryType": "esriGeometryPolygon",
+                    #             "geometry": CLIPP,
+                    #         }
+                    #     ),
+                    # },
                 },
             }
         }
@@ -119,6 +135,24 @@ class MapVisualization(base.DataSource):
             }
         }
         return layer_dict
+
+    def get_map_config(self):
+        function_evt = extract_function_from_js("nwmps/js/mapEvents.js", "onMapClick")
+        map_config = {
+            "className": "ol-map",
+            "style": {"width": "100%", "height": "100%"},
+            "events": {"click": function_evt},
+        }
+        return map_config
+
+    def get_view_config(self, center, zoom):
+        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+        x, y = transformer.transform(center[0], center[1])
+        view_config = {
+            "center": [x, y],
+            "zoom": zoom,
+        }
+        return view_config
 
     def get_esri_base_layers_dict(self, basemap_layers):
         base_map_layers = []
