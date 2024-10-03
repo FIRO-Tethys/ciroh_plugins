@@ -60,14 +60,24 @@ class NWMPService(base.DataSource):
         df = self.add_symbols(df)
         stats_json = self.getStatisticsFromService(df)
         title = self.make_title()
-        description = "Depicts the magnitude of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water."
+        description = self.make_description()
         stats = self.getStatisticsFromService2(df)
+
         # return {"title": title, "data": stats_json}
         return {"title": title, "data": stats, "description": description}
 
     def make_title(self):
         service_name = self.layer_info.get("name")
         return service_name
+
+    def make_description(self):
+        description = self.get_service_info().get("serviceDescription").split("\n")[0]
+        return description
+
+    def get_service_info(self):
+        service_url = f"{self.BASE_URL}/{self.service}/MapServer"
+        response = requests.get(f"{service_url}?f=json")
+        return response.json()
 
     def get_layer_info(self):
         layer_url = f"{self.BASE_URL}/{self.service}/MapServer/{self.layer_id}"
