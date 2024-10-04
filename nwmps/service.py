@@ -25,9 +25,6 @@ class NWMPService(base.DataSource):
     version = "0.0.1"
     name = "nwmp_data_service"
     visualization_args = {
-        # at the end some sort of json containing the map with the layers needed: on this case the HUCs boundaries, and base map of interest
-        # by default the map will have the controllers to turn on and off layers
-        # should be something like click on the map, then select huc (only one), then make a vector layer to show the boundary
         "huc_id": ["0202"],
         "service_and_layer_id": SERVICES_DROPDOWN,
     }
@@ -58,12 +55,9 @@ class NWMPService(base.DataSource):
         self.geom = self.get_huc_boundary(self.huc_level, self.huc_id)
         df = self.getDfRiverFeaturesFromService(service_url, self.layer_id, self.geom)
         df = self.add_symbols(df)
-        stats_json = self.getStatisticsFromService(df)
         title = self.make_title()
         description = self.make_description()
         stats = self.getStatisticsFromService2(df)
-
-        # return {"title": title, "data": stats_json}
         return {"title": title, "data": stats, "description": description}
 
     def make_title(self):
@@ -172,15 +166,6 @@ class NWMPService(base.DataSource):
 
         except Exception as e:
             print(e)
-
-    def getStatisticsFromService(self, df):
-        # filter_attr = self.get_color_attribute()
-        # print(filter_attr)
-        counts = df["label"].value_counts()
-        counts_list = [
-            counts.to_dict()
-        ]  # this is a hack to make it work with the current implementation on react
-        return counts_list
 
     def getStatisticsFromService2(self, df):
         dfg = df.groupby(by=["label", "hex"], as_index=False).size()

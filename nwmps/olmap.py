@@ -1,10 +1,8 @@
 from .utilities import (
     DATA_SERVICES,
-    BASE_URL_SERVICES,
-    LAYERS,
     SERVICES_DROPDOWN,
     BASEMAP_LAYERS_DROPDOWN,
-    CLIPP,
+    HUC_LAYER,
 )
 
 from intake.source import base
@@ -21,12 +19,13 @@ class MapVisualization(base.DataSource):
     visualization_args = {
         "basemap_layer": BASEMAP_LAYERS_DROPDOWN,
         "services": SERVICES_DROPDOWN,
+        "huc_id": "0202",  # empty text it will be an variable input on the dashboard app
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Map"
     visualization_type = "map"
 
-    def __init__(self, basemap_layer, services, metadata=None):
+    def __init__(self, basemap_layer, services, huc_id=None, metadata=None):
         # store important kwargs
         self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
         self.service = services.split("-")[0]
@@ -40,7 +39,7 @@ class MapVisualization(base.DataSource):
     def read(self):
         """Return a version of the xarray with all the data in memory"""
         print("Reading data from MapVisualization")
-        layers = [self.basemap_layer, self.service_layer]
+        layers = [self.basemap_layer, HUC_LAYER, self.service_layer]
         # layers = LAYERS
         return {
             "layers": layers,
@@ -118,7 +117,8 @@ class MapVisualization(base.DataSource):
                     #     ),
                     # },
                 },
-            }
+            },
+            "name": f'{self.service.replace("_"," ")}',
         }
         return layer_dict
 
@@ -132,18 +132,10 @@ class MapVisualization(base.DataSource):
                     "url": f"{basemap_layer}/tile/" + "{z}/{y}/{x}",
                     "attributions": f'Tiles © <a href="{basemap_layer}">ArcGIS</a>',
                 },
-            }
+            },
+            "name": f'{basemap_layer.split("/")[-2].replace("_"," ")}',
         }
         return layer_dict
-
-    def get_map_config(self):
-        function_evt = extract_function_from_js("nwmps/js/mapEvents.js", "onMapClick")
-        map_config = {
-            "className": "ol-map",
-            "style": {"width": "100%", "height": "100%"},
-            "events": {"click": function_evt},
-        }
-        return map_config
 
     def get_view_config(self, center, zoom):
         transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
