@@ -108,7 +108,7 @@ class NWMPSSeries(base.DataSource):
         return traces
 
 
-    def create_plotly_layout(self, title="Time Series Plot", yaxis_title="Flow", xaxis_title="Time"):
+    def create_plotly_layout(self, yaxis_title="Flow", xaxis_title="Time"):
         """
         Create a layout dictionary for Plotly.js based on the data object.
 
@@ -126,6 +126,10 @@ class NWMPSSeries(base.DataSource):
         for product_name, product in self.reach_data.items():
             if product_name == "reach":
                 continue  # Skip the 'reach' key
+
+            if product is None or not isinstance(product, dict):
+                continue  # Skip to the next product
+
             for simulation_name, simulation in product.items():
                 units = simulation.get('units')
                 if units:
@@ -140,7 +144,7 @@ class NWMPSSeries(base.DataSource):
             yaxis_title_with_units = yaxis_title
 
         layout = {
-            'title': {'text': title},
+            'title': {'text': f"Reach Id: {self.id}"},
             'xaxis': {
                 'title': {'text': xaxis_title},
                 'type': 'date',  # Ensures the x-axis is treated as dates
