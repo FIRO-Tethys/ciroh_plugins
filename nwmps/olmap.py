@@ -20,13 +20,12 @@ class MapVisualization(base.DataSource):
     visualization_args = {
         "basemap_layer": BASEMAP_LAYERS_DROPDOWN,
         "services": SERVICES_DROPDOWN,
-        "huc_id": "0202",  # empty text it will be an variable input on the dashboard app
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Map"
     visualization_type = "map"
 
-    def __init__(self, basemap_layer, services, huc_id=None, metadata=None):
+    def __init__(self, basemap_layer, services, metadata=None):
         # store important kwargs
         self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
         self.service = services.split("-")[0]
