@@ -7,7 +7,8 @@ from .utilities import (
 
 from intake.source import base
 from shapely.geometry import Point, LineString, Polygon
-from arcgis.geometry import Geometry
+
+# from arcgis.geometry import Geometry
 import json
 from pyproj import Transformer
 
@@ -59,42 +60,42 @@ class MapVisualization(base.DataSource):
             result.append(service_dict)
         return result
 
-    def shaplyGeom2ArcGISGeom(self, geom):
-        geom_type = geom.geom_type
-        if geom_type == "Point":
-            x, y = geom.coords[0]
-            return {"x": x, "y": y}
-        elif geom_type == "LineString":
-            coords = [{"x": x, "y": y} for x, y in geom.coords]
-            return {"paths": [coords]}
-        elif geom_type == "Polygon":
-            exterior = [{"x": x, "y": y} for x, y in geom.exterior.coords]
-            interiors = [
-                [{"x": x, "y": y} for x, y in interior.coords]
-                for interior in geom.interiors
-            ]
-            return {"rings": [exterior] + interiors}
-        elif geom_type == "MultiPoint":
-            points = [{"x": p.x, "y": p.y} for p in geom.geoms]
-            return {"points": points}
-        elif geom_type == "MultiLineString":
-            paths = [[{"x": x, "y": y} for x, y in line.coords] for line in geom.geoms]
-            return {"paths": paths}
-        elif geom_type == "MultiPolygon":
-            rings = []
-            for polygon in geom.geoms:
-                exterior = [{"x": x, "y": y} for x, y in polygon.exterior.coords]
-                interiors = [
-                    [{"x": x, "y": y} for x, y in interior.coords]
-                    for interior in polygon.interiors
-                ]
-                rings.extend([exterior] + interiors)
-            return {"rings": rings}
-        else:
-            raise ValueError(f"Unsupported geometry type: {geom_type}")
+    # def shaplyGeom2ArcGISGeom(self, geom):
+    #     geom_type = geom.geom_type
+    #     if geom_type == "Point":
+    #         x, y = geom.coords[0]
+    #         return {"x": x, "y": y}
+    #     elif geom_type == "LineString":
+    #         coords = [{"x": x, "y": y} for x, y in geom.coords]
+    #         return {"paths": [coords]}
+    #     elif geom_type == "Polygon":
+    #         exterior = [{"x": x, "y": y} for x, y in geom.exterior.coords]
+    #         interiors = [
+    #             [{"x": x, "y": y} for x, y in interior.coords]
+    #             for interior in geom.interiors
+    #         ]
+    #         return {"rings": [exterior] + interiors}
+    #     elif geom_type == "MultiPoint":
+    #         points = [{"x": p.x, "y": p.y} for p in geom.geoms]
+    #         return {"points": points}
+    #     elif geom_type == "MultiLineString":
+    #         paths = [[{"x": x, "y": y} for x, y in line.coords] for line in geom.geoms]
+    #         return {"paths": paths}
+    #     elif geom_type == "MultiPolygon":
+    #         rings = []
+    #         for polygon in geom.geoms:
+    #             exterior = [{"x": x, "y": y} for x, y in polygon.exterior.coords]
+    #             interiors = [
+    #                 [{"x": x, "y": y} for x, y in interior.coords]
+    #                 for interior in polygon.interiors
+    #             ]
+    #             rings.extend([exterior] + interiors)
+    #         return {"rings": rings}
+    #     else:
+    #         raise ValueError(f"Unsupported geometry type: {geom_type}")
 
-    def arcGisGeomObject(self, esri_geom_dict):
-        return Geometry(esri_geom_dict)
+    # def arcGisGeomObject(self, esri_geom_dict):
+    #     return Geometry(esri_geom_dict)
 
     def get_service_layer_dict(self):
         self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
@@ -106,16 +107,7 @@ class MapVisualization(base.DataSource):
                 "type": "ImageArcGISRest",
                 "props": {
                     "url": service_url,
-                    # "params": {
-                    #     "LAYERS": f"show:{self.layer_id}",
-                    #     "spatialFilter": json.dumps(
-                    #         {
-                    #             "spatialRel": "esriSpatialRelContains",
-                    #             "geometryType": "esriGeometryPolygon",
-                    #             "geometry": CLIPP,
-                    #         }
-                    #     ),
-                    # },
+                    "params": {"LAYERS": f"show:{self.layer_id}"},
                 },
             },
             "name": f'{self.service.replace("_"," ")}',
