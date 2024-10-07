@@ -1,174 +1,216 @@
-import shapely.wkt
-import shapely
-
-from .utilities import (
-    _to_2d,
-    get_service_layers,
-    DATA_SERVICES,
-    SERVICES_DROPDOWN,
-    LAYERS,
-    BASEMAP_LAYERS_DROPDOWN,
-)
-
-from geoalchemy2 import WKTElement
-import shapely
+import requests
+import pandas as pd
+from shapely.geometry import MultiPolygon
 from pynhd import NHDPlusHR
 from pygeoogc import ArcGISRESTful
 import pygeoutils as geoutils
+from pygeoogc.exceptions import ZeroMatchedError
 from pygeohydro import WBD
 from intake.source import base
-import requests
+from .utilities import _to_2d, DATA_SERVICES, SERVICES_DROPDOWN
 
 
 class NWMPService(base.DataSource):
+    """
+    A data source class for NWMP services, extending Intake's DataSource.
+    """
+
     container = "python"
     version = "0.0.1"
     name = "nwmp_data_service"
     visualization_args = {
-        "huc_id": ["0202"],
+        "huc_id": "0202",
         "service_and_layer_id": SERVICES_DROPDOWN,
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Data Service"
     visualization_type = "card"
+    BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
 
     def __init__(self, service_and_layer_id, huc_id, metadata=None):
-        # store important kwargs
-        self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
-        self.service = service_and_layer_id.split("-")[0]
-        self.layer_id = service_and_layer_id.split("-")[1]
+        """
+        Initialize the NWMPService data source.
+        """
+        super().__init__(metadata=metadata)
+        parts = service_and_layer_id.split("-")
+        if len(parts) != 2:
+            raise ValueError(
+                "service_and_layer_id must be in 'service-layer_id' format"
+            )
+        self.service = parts[0]
+        self.layer_id = int(parts[1])
         self.huc_level = f"huc{len(str(huc_id))}"
         self.huc_id = huc_id
         self.layer_info = self.get_layer_info()
-        self.geom = None
-
-        super(NWMPService, self).__init__(metadata=metadata)
+        self.title = None
+        self.description = None
 
     def read(self):
-        """Return a version of the xarray with all the data in memory"""
+        """
+        Read data from NWMP service and return a dictionary with title, data, and description.
+        """
         print("Reading data from NWMP service")
         print(f"Service: {self.BASE_URL}/{self.service}/MapServer")
         print(f"Layer ID: {self.layer_id}")
         print(f"HUC Level: {self.huc_level}")
         print(f"HUC IDs: {self.huc_id}")
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
-        self.geom = self.get_huc_boundary(self.huc_level, self.huc_id)
-        df = self.getDfRiverFeaturesFromService(service_url, self.layer_id, self.geom)
-        df = self.add_symbols(df)
-        title = self.make_title()
-        description = self.make_description()
-        stats = self.getStatisticsFromService2(df)
-        return {"title": title, "data": stats, "description": description}
+        self.title = self.make_title()
+        self.description = self.make_description()
+        geometry = self.get_huc_boundary()
+        if geometry is None:
+            df = pd.DataFrame()
+        else:
+            df = self.get_river_features(service_url, geometry)
+
+        if not df.empty:
+            df = self.add_symbols(df)
+            stats = self.get_statistics(df)
+        else:
+            stats = {}
+
+        return {
+            "title": self.title,
+            "data": stats,
+            "description": self.description,
+        }
 
     def make_title(self):
-        service_name = self.layer_info.get("name")
-        return service_name
+        """Create a title for the data."""
+        return self.layer_info.get("name", "NWMP Data")
 
     def make_description(self):
-        description = self.get_service_info().get("serviceDescription").split("\n")[0]
-        return description
+        """Create a description for the data."""
+        service_info = self.get_service_info()
+        description = service_info.get("serviceDescription", "")
+        return description.split("\n")[0] if description else ""
 
     def get_service_info(self):
+        """Retrieve service information from the NWMP service."""
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
-        response = requests.get(f"{service_url}?f=json")
-        return response.json()
+        try:
+            response = requests.get(f"{service_url}?f=json")
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            print(f"Error fetching service info: {e}")
+            return {}
 
     def get_layer_info(self):
+        """Retrieve layer information from the NWMP service."""
         layer_url = f"{self.BASE_URL}/{self.service}/MapServer/{self.layer_id}"
-        response = requests.get(f"{layer_url}?f=json")
-        return response.json()
+        try:
+            response = requests.get(f"{layer_url}?f=json")
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            print(f"Error fetching layer info: {e}")
+            return {}
 
     def get_drawing_info(self):
-        layer_info = self.layer_info
-        drawing_info = (
-            layer_info.get("drawingInfo").get("renderer").get("uniqueValueInfos")
-        )
-        return drawing_info
+        """Extract drawing information from layer info."""
+        renderer = self.layer_info.get("drawingInfo", {}).get("renderer", {})
+        return renderer.get("uniqueValueInfos", [])
 
-    # Define a function to get the label and color based on recur_cat
-    def get_label_and_color(self, filter_attr, symbol_dict):
-        match = symbol_dict.get(filter_attr, None)
+    def get_label_and_color(self, attribute_value, symbol_dict):
+        """Get label and color for a given attribute value."""
+        match = symbol_dict.get(attribute_value)
         if match:
-            return match["label"], match["symbol"]["color"]
+            symbol = match.get("symbol", {})
+            color = symbol.get("color", [])
+            label = match.get("label", "")
+            return label, color
         return None, None
 
-    def rgb_to_hex(self, r, g, b):
-        return "#{:02x}{:02x}{:02x}".format(r, g, b)
+    @staticmethod
+    def rgb_to_hex(rgb_color):
+        """Convert RGB color to hex color code."""
+        if rgb_color and len(rgb_color) >= 3:
+            return "#{:02x}{:02x}{:02x}".format(*rgb_color[:3])
+        return "#000000"
 
-    def add_symbols_info_df(self, df, symbols, filter_attr):
+    def add_symbols_info(self, df, symbols, filter_attr):
+        """Add symbol information to the DataFrame."""
         # Convert the symbol list to a dictionary for quick lookup
         symbol_dict = {item["value"]: item for item in symbols}
-        # Apply the function to each row in the DataFrame using a lambda function to pass symbol_dict
-        df["label"], df["color"] = zip(
-            *df[filter_attr].apply(lambda x: self.get_label_and_color(x, symbol_dict))
-        )
-        df["hex"] = df["color"].apply(lambda x: self.rgb_to_hex(x[0], x[1], x[2]))
 
+        # Apply the function to each row in the DataFrame
+        def extract_label_color(value):
+            label, color = self.get_label_and_color(value, symbol_dict)
+            hex_color = self.rgb_to_hex(color)
+            return pd.Series({"label": label, "hex": hex_color})
+
+        df[["label", "hex"]] = df[filter_attr].apply(extract_label_color)
         return df
 
     def add_symbols(self, df):
+        """Add symbols to the DataFrame."""
         filter_attr = self.get_color_attribute()
         symbols = self.get_drawing_info()
-        df = self.add_symbols_info_df(df, symbols, filter_attr)
+        if not symbols:
+            print("No drawing symbols found.")
+            return df
+        df = self.add_symbols_info(df, symbols, filter_attr)
         return df
 
     def get_color_attribute(self):
-        attr_name = (
-            DATA_SERVICES[self.service]
-            .get("layers")[int(self.layer_id)]
-            .get("filter_attr")
+        """Get the attribute name used for coloring."""
+        service_info = DATA_SERVICES.get(self.service, {})
+        layers = service_info.get("layers", [])
+        layer_info = next(
+            (layer for layer in layers if layer.get("id") == self.layer_id), {}
         )
+        attr_name = layer_info.get("filter_attr")
+        if not attr_name:
+            print(f"No filter attribute found for layer ID {self.layer_id}")
         return attr_name
 
-    def get_huc_boundary(self, huc_level, huc_id):
+    def get_huc_boundary(self):
         """
         Retrieve the watershed boundary geometry for a given HUC code.
 
-        Parameters:
-            huc_code (str): The Hydrologic Unit Code of the watershed.
-
         Returns:
-            geopandas.GeoDataFrame: A GeoDataFrame containing the watershed boundary geometry.
+            shapely.geometry: The geometry of the HUC boundary, or None if not found.
         """
-        wbd = WBD(huc_level)
-        gdf = wbd.byids(huc_level, huc_id)
-        return gdf["geometry"][0]
-
-    def getDfRiverFeaturesFromService(self, url, layer_id, geom):
-        hr = ArcGISRESTful(url, layer_id)
-        resp = hr.get_features(
-            hr.oids_bygeom(geom, spatial_relation="esriSpatialRelContains")
-        )
-        df = geoutils.json2geodf(resp)
-        return df
-
-    def getDfRiverIDsFromHUC(geom):
-        # mr = WaterData("nhdflowline_network")
-        mr = NHDPlusHR("flowline")
+        wbd = WBD(self.huc_level)
         try:
-            nhdp_mr = mr.bygeom(geom)
+            gdf = wbd.byids(self.huc_level, self.huc_id)
+            return gdf.iloc[0]["geometry"]
+        except ZeroMatchedError:
+            print(f"No HUC boundary found for HUC ID {self.huc_id}")
+            return None
         except Exception as e:
-            print(e)
+            print(f"Error fetching HUC boundary: {e}")
+            return None
 
-        nhdp_mr["geometry"] = nhdp_mr["geometry"].apply(
-            lambda geom: shapely.ops.transform(_to_2d, geom)
-        )
-        nhdp_mr = nhdp_mr.explode(index_parts=False)
-        nhdp_mr["geometry"] = nhdp_mr["geometry"].apply(
-            lambda x: WKTElement(x.wkt, srid=4326)
-        )
-        return nhdp_mr
-
-    def getTotalRiverIdsFromGeom(geom):
-        mr = NHDPlusHR("flowline")
+    def get_river_features(self, url, geometry):
+        """Fetch river features from the service within the given geometry."""
+        hr = ArcGISRESTful(url, self.layer_id)
         try:
-            nhdp_mr = mr.bygeom(geom)
-
+            dfs = []
+            geometries = (
+                geometry.geoms if isinstance(geometry, MultiPolygon) else [geometry]
+            )
+            for geom in geometries:
+                oids = hr.oids_bygeom(geom, spatial_relation="esriSpatialRelContains")
+                if oids:
+                    resp = hr.get_features(oids)
+                    df_temp = geoutils.json2geodf(resp)
+                    dfs.append(df_temp)
+            if dfs:
+                df = pd.concat(dfs, ignore_index=True)
+                return df
+            else:
+                return pd.DataFrame()
+        except ZeroMatchedError:
+            print("No river features found within the given geometry.")
+            return pd.DataFrame()
         except Exception as e:
-            print(e)
+            print(f"Error fetching river features: {e}")
+            return pd.DataFrame()
 
-    def getStatisticsFromService2(self, df):
-        dfg = df.groupby(by=["label", "hex"], as_index=False).size()
-        stats = dfg.to_dict("records")
-        print(stats)
+    def get_statistics(self, df):
+        """Compute statistics from the DataFrame."""
+        grouped = df.groupby(by=["label", "hex"], as_index=False).size()
+        stats = grouped.to_dict("records")
         return stats
