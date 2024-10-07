@@ -19,7 +19,7 @@ class NWMPService(base.DataSource):
     version = "0.0.1"
     name = "nwmp_data_service"
     visualization_args = {
-        "huc_id": "0202",
+        "huc_id": ["0"],
         "service_and_layer_id": SERVICES_DROPDOWN,
     }
     visualization_group = "NWMP"
@@ -37,6 +37,7 @@ class NWMPService(base.DataSource):
             raise ValueError(
                 "service_and_layer_id must be in 'service-layer_id' format"
             )
+
         self.service = parts[0]
         self.layer_id = int(parts[1])
         self.huc_level = f"huc{len(str(huc_id))}"
@@ -62,7 +63,6 @@ class NWMPService(base.DataSource):
             df = pd.DataFrame()
         else:
             df = self.get_river_features(service_url, geometry)
-
         if not df.empty:
             df = self.add_symbols(df)
             stats = self.get_statistics(df)
@@ -110,17 +110,51 @@ class NWMPService(base.DataSource):
     def get_drawing_info(self):
         """Extract drawing information from layer info."""
         renderer = self.layer_info.get("drawingInfo", {}).get("renderer", {})
-        return renderer.get("uniqueValueInfos", [])
+        drawing_attr = self.get_drawing_info_attr(self.service, self.layer_id)
+        drawings = renderer.get(drawing_attr, {})
 
-    def get_label_and_color(self, attribute_value, symbol_dict):
-        """Get label and color for a given attribute value."""
-        match = symbol_dict.get(attribute_value)
-        if match:
-            symbol = match.get("symbol", {})
-            color = symbol.get("color", [])
-            label = match.get("label", "")
-            return label, color
-        return None, None
+        # drawings = renderer.get("uniqueValueInfos", {})
+        # if not bool(drawings):
+        #     drawings = renderer.get("classBreakInfos", {})
+        #     if not bool(drawings):
+        #         print("No drawing symbols found.")
+
+        return drawings
+
+    # def get_label_and_color(self, attribute_value, symbol_dict):
+    #     """Get label and color for a given attribute value."""
+    #     match = symbol_dict.get(str(attribute_value))
+    #     if match:
+    #         symbol = match.get("symbol", {})
+    #         color = symbol.get("color", [])
+    #         label = match.get("label", "")
+    #         return label, color
+    #     return None, None
+
+    @staticmethod
+    def get_drawing_info_attr(service_name, layer_id):
+        service = DATA_SERVICES.get(service_name)
+        if not service:
+            return None
+
+        layers = service.get("layers", [])
+        for layer in layers:
+            if layer.get("id") == layer_id:
+                return layer.get("drawingInfoAttr")
+
+        return None
+
+    @staticmethod
+    def get_drawing_info_value_attr(service_name, layer_id):
+        service = DATA_SERVICES.get(service_name)
+        if not service:
+            return None
+
+        layers = service.get("layers", [])
+        for layer in layers:
+            if layer.get("id") == layer_id:
+                return layer.get("drawingInfoValueAttr")
+        return None
 
     @staticmethod
     def rgb_to_hex(rgb_color):
@@ -129,28 +163,45 @@ class NWMPService(base.DataSource):
             return "#{:02x}{:02x}{:02x}".format(*rgb_color[:3])
         return "#000000"
 
+    # Define a function to get the label and color based on recur_cat
+    def get_label_and_color(self, filter_attr, symbol_dict):
+        # breakpoint()
+        match = symbol_dict.get(filter_attr, None)
+        if match:
+            return match["label"], match["symbol"]["color"]
+        return None, None
+
     def add_symbols_info(self, df, symbols, filter_attr):
-        """Add symbol information to the DataFrame."""
         # Convert the symbol list to a dictionary for quick lookup
-        symbol_dict = {item["value"]: item for item in symbols}
+        drawing_info_val_attr = self.get_drawing_info_value_attr(
+            self.service, self.layer_id
+        )
+        # breakpoint()
+        symbol_dict = {item[drawing_info_val_attr]: item for item in symbols}
+        # breakpoint()
+        # Apply the function to each row in the DataFrame using a lambda function to pass symbol_dict
+        df["label"], df["color"] = zip(
+            *df[filter_attr].apply(lambda x: self.get_label_and_color(x, symbol_dict))
+        )
 
-        # Apply the function to each row in the DataFrame
-        def extract_label_color(value):
-            label, color = self.get_label_and_color(value, symbol_dict)
-            hex_color = self.rgb_to_hex(color)
-            return pd.Series({"label": label, "hex": hex_color})
+        df["hex"] = df["color"].apply(lambda x: self.rgb_to_hex(x))
 
-        df[["label", "hex"]] = df[filter_attr].apply(extract_label_color)
         return df
 
     def add_symbols(self, df):
         """Add symbols to the DataFrame."""
+        # breakpoint()
         filter_attr = self.get_color_attribute()
+        # breakpoint()
         symbols = self.get_drawing_info()
+        # print(symbols)
         if not symbols:
             print("No drawing symbols found.")
             return df
+        print(df)
         df = self.add_symbols_info(df, symbols, filter_attr)
+        print(df)
+
         return df
 
     def get_color_attribute(self):
@@ -186,27 +237,32 @@ class NWMPService(base.DataSource):
     def get_river_features(self, url, geometry):
         """Fetch river features from the service within the given geometry."""
         hr = ArcGISRESTful(url, self.layer_id)
-        try:
-            dfs = []
-            geometries = (
-                geometry.geoms if isinstance(geometry, MultiPolygon) else [geometry]
-            )
-            for geom in geometries:
+        dfs = []
+        geometries = (
+            geometry.geoms if isinstance(geometry, MultiPolygon) else [geometry]
+        )
+        # Optionally, remove debug prints or breakpoint in production
+        # breakpoint()
+        for geom in geometries:
+            try:
                 oids = hr.oids_bygeom(geom, spatial_relation="esriSpatialRelContains")
                 if oids:
                     resp = hr.get_features(oids)
                     df_temp = geoutils.json2geodf(resp)
                     dfs.append(df_temp)
-            if dfs:
-                df = pd.concat(dfs, ignore_index=True)
-                return df
-            else:
-                return pd.DataFrame()
-        except ZeroMatchedError:
-            print("No river features found within the given geometry.")
-            return pd.DataFrame()
-        except Exception as e:
-            print(f"Error fetching river features: {e}")
+                else:
+                    print("No OIDs found for the geometry.")
+            except ZeroMatchedError:
+                print("ZeroMatchedError: No features found within the given geometry.")
+                continue  # Skip to the next geometry
+            except Exception as e:
+                print(f"Error fetching features for a geometry: {e}")
+                continue  # Optionally continue or handle differently
+        if dfs:
+            df = pd.concat(dfs, ignore_index=True)
+            return df
+        else:
+            print("No river features found in any of the geometries.")
             return pd.DataFrame()
 
     def get_statistics(self, df):
