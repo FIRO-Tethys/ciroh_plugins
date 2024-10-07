@@ -31,7 +31,7 @@ dependencies = [
 [project.entry-points."intake.drivers"]
 nwmp_data_service = "nwmps.service:NWMPService"
 nwmp_map = "nwmps.olmap:MapVisualization"
-nwmp_series = "nwmps.series:NWMPSSeries"
+nwmp_reaches_series = "nwmps.reaches:NWMPSReachesSeries"
 
 [tool.setuptools]
 include-package-data = true
