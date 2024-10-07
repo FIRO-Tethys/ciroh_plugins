@@ -14,7 +14,7 @@ class NWMPSReachesSeries(base.DataSource):
     version = "0.0.1"
     name = "nwmp_api"
     visualization_args = {
-        "id": ["000000"],  # empty text it will be an variable input on the dashboard
+        "id": "text",  # empty text it will be an variable input on the dashboard
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Reaches Time Series"

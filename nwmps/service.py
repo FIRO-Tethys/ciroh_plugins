@@ -19,7 +19,7 @@ class NWMPService(base.DataSource):
     version = "0.0.1"
     name = "nwmp_data_service"
     visualization_args = {
-        "huc_id": ["0"],
+        "huc_id": "text",
         "service_and_layer_id": SERVICES_DROPDOWN,
     }
     visualization_group = "NWMP"
