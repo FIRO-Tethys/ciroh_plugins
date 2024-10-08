@@ -1,4 +1,5 @@
 from pygeohydro import WBD
+import pandas as pd
 
 
 # Define a function to convert MultiLineString with 3 dimensions to 2 dimensions
@@ -6,34 +7,6 @@ def _to_2d(x, y, z=None):
     if z is None:
         return (x, y)
     return tuple(filter(None, [x, y]))
-
-
-def get_huc_boundary(huc_layer, ids_list):
-    """
-    Retrieve the watershed boundary geometry for a given HUC code.
-
-    Parameters:
-        huc_code (str): The Hydrologic Unit Code of the watershed.
-
-    Returns:
-        geopandas.GeoDataFrame: A GeoDataFrame containing the watershed boundary geometry.
-    """
-    wbd = WBD(huc_layer)
-    gdf = wbd.byids(huc_layer, ids_list)
-    return gdf
-
-
-def get_all_huc_codes(level=4):
-    """
-    Retrieve a list of all possible HUC codes at a specified level.
-
-    Parameters:
-        level (int): The HUC level (2, 4, 6, 8, 10, 12).
-
-    Returns:
-        list: A list of HUC codes at the specified level.
-    """
-    pass
 
 
 BASEMAP_LAYERS_DROPDOWN = [
@@ -493,3 +466,73 @@ def get_service_layers():
             obj = {"label": layer["name"], "value": f"{layer['id']}"}
             layers.append(obj)
     return layers
+
+
+# SOMETHIGS THAT WE MIGHT NEED LATER ON
+# def shaplyGeom2ArcGISGeom(self, geom):
+#     geom_type = geom.geom_type
+#     if geom_type == "Point":
+#         x, y = geom.coords[0]
+#         return {"x": x, "y": y}
+#     elif geom_type == "LineString":
+#         coords = [{"x": x, "y": y} for x, y in geom.coords]
+#         return {"paths": [coords]}
+#     elif geom_type == "Polygon":
+#         exterior = [{"x": x, "y": y} for x, y in geom.exterior.coords]
+#         interiors = [
+#             [{"x": x, "y": y} for x, y in interior.coords]
+#             for interior in geom.interiors
+#         ]
+#         return {"rings": [exterior] + interiors}
+#     elif geom_type == "MultiPoint":
+#         points = [{"x": p.x, "y": p.y} for p in geom.geoms]
+#         return {"points": points}
+#     elif geom_type == "MultiLineString":
+#         paths = [[{"x": x, "y": y} for x, y in line.coords] for line in geom.geoms]
+#         return {"paths": paths}
+#     elif geom_type == "MultiPolygon":
+#         rings = []
+#         for polygon in geom.geoms:
+#             exterior = [{"x": x, "y": y} for x, y in polygon.exterior.coords]
+#             interiors = [
+#                 [{"x": x, "y": y} for x, y in interior.coords]
+#                 for interior in polygon.interiors
+#             ]
+#             rings.extend([exterior] + interiors)
+#         return {"rings": rings}
+#     else:
+#         raise ValueError(f"Unsupported geometry type: {geom_type}")
+
+# def arcGisGeomObject(self, esri_geom_dict):
+#     return Geometry(esri_geom_dict)
+
+
+# def get_huc_options():
+#     """
+#     Create a dictionary containing all the HUC IDs of the Watershed Boundary Dataset.
+
+#     Returns:
+#         list: A list of dictionaries, each containing HUC level and options.
+#     """
+
+#     huc_levels = [2, 4, 6, 8, 10, 12]
+#     huc_data = []
+#     for huc_level in huc_levels:
+#         huc_level_str = f"huc{huc_level}"
+#         wbd = WBD(huc_level_str)
+#         breakpoint()
+#         try:
+#             print(f"Fetching data for {huc_level_str}...")
+#             # Fetch HUC IDs for the current level
+#             gdf = wbd.get_huc_boundaries(huc_level_str)
+#             # Extract unique HUC IDs and sort them
+#             huc_ids = sorted(gdf[huc_level_str].unique())
+#             # Build the options list
+#             options = [{"label": huc_id, "value": huc_id} for huc_id in huc_ids]
+#             # Add to huc_data
+#             huc_data.append({"label": huc_level_str, "options": options})
+#         except Exception as e:
+#             print(f"Error getting HUC level {huc_level}: {e}")
+#             continue
+
+#     return huc_data
