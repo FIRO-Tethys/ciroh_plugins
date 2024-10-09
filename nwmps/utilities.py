@@ -1,138 +1,63 @@
-from pygeohydro import WBD
-import pandas as pd
+def get_base_map_layers_dropdown():
+    return  [
+        {
+            "label": "Esri Basemaps",
+            "options": [
+                {
+                    "label": "World Light Gray Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
+                },
+                {
+                    "label": "World Topo Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
+                },
+                {
+                    "label": "World Imagery",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+                },
+                {
+                    "label": "World Terrain Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer",
+                },
+                {
+                    "label": "World Street Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer",
+                },
+                {
+                    "label": "World Physical Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer",
+                },
+                {
+                    "label": "World Shaded Relief",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer",
+                },
+                {
+                    "label": "World Terrain Reference",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
+                },
+                {
+                    "label": "World Transportation",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Transportation/MapServer",
+                },
+            ],
+        }
+    ]
 
-
-# Define a function to convert MultiLineString with 3 dimensions to 2 dimensions
-def _to_2d(x, y, z=None):
-    if z is None:
-        return (x, y)
-    return tuple(filter(None, [x, y]))
-
-
-BASEMAP_LAYERS_DROPDOWN = [
+def get_services_dropdown():
+    return [
     {
-        "label": "Esri Basemaps",
+        "label": service["name"],
         "options": [
             {
-                "label": "World Light Gray Base",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
-            },
-            {
-                "label": "World Topo Map",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
-            },
-            {
-                "label": "World Imagery",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
-            },
-            {
-                "label": "World Terrain Base",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer",
-            },
-            {
-                "label": "World Street Map",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer",
-            },
-            {
-                "label": "World Physical Map",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer",
-            },
-            {
-                "label": "World Shaded Relief",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer",
-            },
-            {
-                "label": "World Terrain Reference",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
-            },
-            {
-                "label": "World Transportation",
-                "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Transportation/MapServer",
-            },
+                "label": layer["name"],
+                "value": f'{service_key}-{layer["id"]}',
+            }
+            for layer in service["layers"]
         ],
     }
-]
+    for service_key, service in DATA_SERVICES.items()
+    ]
 
-
-BASE_URL_SERVICES = "https://maps.water.noaa.gov/server/rest/services/nwm"
-
-HUC_LAYER = {
-    "type": "ImageLayer",
-    "props": {
-        "source": {
-            "type": "ImageArcGISRest",
-            "props": {
-                "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer",
-                "params": {"LAYERS": "hide:0"},
-            },
-        },
-        "visible": False,
-        "name": "Hydrologic Unit (HU) polygon boundaries",
-    },
-}
-BASEMAP_LAYERS = [
-    {
-        "type": "WebGLTile",
-        "props": {
-            "source": {
-                "type": "ImageTile",
-                "props": {
-                    "url": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-                    "attributions": 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
-                },
-            },
-            "name": "World Light Gray Base",
-        },
-    }
-]
-
-LAYERS = [
-    {
-        "type": "WebGLTile",
-        "props": {
-            "source": {
-                "type": "ImageTile",
-                "props": {
-                    "url": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-                    "attributions": 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
-                },
-            },
-            "name": "World Light Gray Base",
-        },
-    },
-    {
-        "type": "ImageLayer",
-        "props": {
-            "source": {
-                "type": "ImageArcGISRest",
-                "props": {
-                    "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer",
-                    "params": {"LAYERS": "hide:0"},
-                },
-            }
-            # "name": "World Light Gray Base"
-        },
-    },
-    # {
-    #     "type": "ImageLayer",
-    #     "props": {
-    #         "source": {
-    #             "type": "ImageArcGISRest",
-    #             "props": {
-    #                 "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water/riv_gauges/MapServer",
-    #                 "params": {
-    #                     "LAYERS": "show:0",
-    #                     "layerDefs": json.dumps(
-    #                         {
-    #                             "0": "status = 'action' or status='minor' or status='moderate' or status='major'"
-    #                         }
-    #                     ),
-    #                 },
-    #             },
-    #         }
-    #     },
-    # },
-]
 
 
 DATA_SERVICES = {
@@ -443,20 +368,6 @@ DATA_SERVICES = {
     },
 }
 
-SERVICES_DROPDOWN = [
-    {
-        "label": service["name"],
-        "options": [
-            {
-                "label": layer["name"],
-                "value": f'{service_key}-{layer["id"]}',
-            }
-            for layer in service["layers"]
-        ],
-    }
-    for service_key, service in DATA_SERVICES.items()
-]
-
 
 def get_service_layers():
     layers = []
@@ -466,6 +377,10 @@ def get_service_layers():
             obj = {"label": layer["name"], "value": f"{layer['id']}"}
             layers.append(obj)
     return layers
+
+
+
+
 
 
 # SOMETHIGS THAT WE MIGHT NEED LATER ON
