@@ -111,8 +111,9 @@ class MapVisualization(base.DataSource):
             "name": f'{self.service.replace("_"," ").title()}',
         }
         return layer_dict
-
-    def get_esri_base_layer_dict(self, base_map_layer):
+    
+    @staticmethod
+    def get_esri_base_layer_dict(base_map_layer):
         layer_dict = {}
         layer_dict["type"] = "WebGLTile"
         layer_dict["props"] = {
@@ -127,7 +128,8 @@ class MapVisualization(base.DataSource):
         }
         return layer_dict
 
-    def get_view_config(self, center, zoom):
+    @staticmethod
+    def get_view_config(center, zoom):
         transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
         x, y = transformer.transform(center[0], center[1])
         view_config = {
@@ -136,7 +138,8 @@ class MapVisualization(base.DataSource):
         }
         return view_config
 
-    def get_map_config(self):
+    @staticmethod
+    def get_map_config():
         map_config = {
             "className": "ol-map",
             "style": {
@@ -146,7 +149,8 @@ class MapVisualization(base.DataSource):
         }
         return map_config
 
-    def get_esri_base_layers_dict(self, base_map_layers):
+    @staticmethod
+    def get_esri_base_layers_dict(base_map_layers):
         base_map_layers = []
         for layer in base_map_layers:
             layer_dict = {}

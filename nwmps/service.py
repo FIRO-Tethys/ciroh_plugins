@@ -7,7 +7,7 @@ import pygeoutils as geoutils
 from pygeoogc.exceptions import ZeroMatchedError
 from pygeohydro import WBD
 from intake.source import base
-from .utilities import _to_2d, DATA_SERVICES, SERVICES_DROPDOWN
+from .utilities import get_services_dropdown, DATA_SERVICES
 
 
 class NWMPService(base.DataSource):
@@ -20,7 +20,7 @@ class NWMPService(base.DataSource):
     name = "nwmp_data_service"
     visualization_args = {
         "huc_id": "text",
-        "service_and_layer_id": SERVICES_DROPDOWN,
+        "service_and_layer_id": get_services_dropdown(),
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Data Service"
@@ -37,7 +37,6 @@ class NWMPService(base.DataSource):
             raise ValueError(
                 "service_and_layer_id must be in 'service-layer_id' format"
             )
-
         self.service = parts[0]
         self.layer_id = int(parts[1])
         self.huc_level = f"huc{len(str(huc_id))}"
@@ -112,24 +111,7 @@ class NWMPService(base.DataSource):
         renderer = self.layer_info.get("drawingInfo", {}).get("renderer", {})
         drawing_attr = self.get_drawing_info_attr(self.service, self.layer_id)
         drawings = renderer.get(drawing_attr, {})
-
-        # drawings = renderer.get("uniqueValueInfos", {})
-        # if not bool(drawings):
-        #     drawings = renderer.get("classBreakInfos", {})
-        #     if not bool(drawings):
-        #         print("No drawing symbols found.")
-
         return drawings
-
-    # def get_label_and_color(self, attribute_value, symbol_dict):
-    #     """Get label and color for a given attribute value."""
-    #     match = symbol_dict.get(str(attribute_value))
-    #     if match:
-    #         symbol = match.get("symbol", {})
-    #         color = symbol.get("color", [])
-    #         label = match.get("label", "")
-    #         return label, color
-    #     return None, None
 
     @staticmethod
     def get_drawing_info_attr(service_name, layer_id):
