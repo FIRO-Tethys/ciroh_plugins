@@ -1,17 +1,12 @@
 from .utilities import (
-    DATA_SERVICES,
-    SERVICES_DROPDOWN,
-    BASEMAP_LAYERS_DROPDOWN,
-    HUC_LAYER,
+    get_base_map_layers_dropdown,
+    get_services_dropdown,
+    DATA_SERVICES
 )
 
 from intake.source import base
-from shapely.geometry import Point, LineString, Polygon
-
-# from arcgis.geometry import Geometry
-import json
 from pyproj import Transformer
-
+import geopandas as gpd
 import requests
 
 
@@ -20,35 +15,45 @@ class MapVisualization(base.DataSource):
     version = "0.0.1"
     name = "nwmp_map"
     visualization_args = {
-        "basemap_layer": BASEMAP_LAYERS_DROPDOWN,
-        "services": SERVICES_DROPDOWN,
+        "latitude": "number",
+        "longitude":"number",
+        "zoom": "number",
         "huc_id": "text",
+        "base_map_layer": get_base_map_layers_dropdown(),
+        "services": get_services_dropdown(),
+
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Map"
     visualization_type = "map"
 
-    def __init__(self, basemap_layer, services, huc_id, metadata=None):
+    def __init__(self,latitude, longitude, zoom, base_map_layer, services, huc_id, metadata=None):
         # store important kwargs
         self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
+        self.center = [longitude, latitude]
+        self.zoom = zoom
         self.huc_id = huc_id
         self.service = services.split("-")[0]
         self.layer_id = services.split("-")[1]
-        self.basemap_layer = self.get_esri_base_layer_dict(basemap_layer)
+        self.base_map_layer = self.get_esri_base_layer_dict(base_map_layer)
         self.service_layer = self.get_service_layer_dict()
-
-        self.layer_huc = None  # self.make_huc_vector_layer()
-        self.view = self.get_view_config(center=[-110.875, 37.345], zoom=5)
+        self.view = self.get_view_config(center=self.center, zoom=self.zoom)
+        self.layer_huc = self.make_huc_vector_layer()
+        self.map_config = self.get_map_config()
         super(MapVisualization, self).__init__(metadata=metadata)
 
     def read(self):
         """Return a version of the xarray with all the data in memory"""
-        layers = [self.basemap_layer, HUC_LAYER, self.service_layer]
+        HUC_LAYER = self.get_wbd_layer()
+        
         if self.layer_huc is not None:
-            layers = [self.basemap_layer, HUC_LAYER, self.layer_huc, self.service_layer]
+            layers = [self.base_map_layer, HUC_LAYER, self.layer_huc, self.service_layer]
+        else:
+            layers = [self.base_map_layer, HUC_LAYER, self.service_layer]
         return {
             "layers": layers,
             "view_config": self.view,
+            "map_config": self.map_config
         }
 
     def get_service_layers(self):
@@ -65,13 +70,16 @@ class MapVisualization(base.DataSource):
         return result
 
     def make_huc_vector_layer(self):
+        if len(str(self.huc_id)) < 2 or len(str(self.huc_id)) > 12: return None 
         huc_level = f"huc{len(str(self.huc_id))}"
         service_url = f"https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer/{int(len(str(self.huc_id))/2)}/query"
         payload = {"where": f"{huc_level} = '{self.huc_id}'", "f": "geojson"}
         rr = requests.get(service_url, params=payload)
         if rr.status_code != 200:
             return None
-        # breakpoint()
+        gdf = gpd.read_file(rr.url)
+        centroid = gdf.geometry.unary_union.centroid
+        self.view = self.get_view_config(center=[centroid.x, centroid.y], zoom=self.zoom)
         layer_dict = {}
         layer_dict["type"] = "VectorLayer"
         layer_dict["props"] = {
@@ -80,9 +88,11 @@ class MapVisualization(base.DataSource):
                 "props": {
                     "url": rr.url,
                     "format": {"type": "GeoJSON"},
+
                 },
             },
-            "name": "huc_vector_selection",
+            "style": "Polygon",
+            "name": f"{self.huc_id} huc id",
         }
         return layer_dict
 
@@ -98,22 +108,22 @@ class MapVisualization(base.DataSource):
                     "params": {"LAYERS": f"show:{self.layer_id}"},
                 },
             },
-            "name": f'{self.service.replace("_"," ")}',
+            "name": f'{self.service.replace("_"," ").title()}',
         }
         return layer_dict
 
-    def get_esri_base_layer_dict(self, basemap_layer):
+    def get_esri_base_layer_dict(self, base_map_layer):
         layer_dict = {}
         layer_dict["type"] = "WebGLTile"
         layer_dict["props"] = {
             "source": {
                 "type": "ImageTile",
                 "props": {
-                    "url": f"{basemap_layer}/tile/" + "{z}/{y}/{x}",
-                    "attributions": f'Tiles © <a href="{basemap_layer}">ArcGIS</a>',
+                    "url": f"{base_map_layer}/tile/" + "{z}/{y}/{x}",
+                    "attributions": f'Tiles © <a href="{base_map_layer}">ArcGIS</a>',
                 },
             },
-            "name": f'{basemap_layer.split("/")[-2].replace("_"," ")}',
+            "name": f'{base_map_layer.split("/")[-2].replace("_"," ").title()}',
         }
         return layer_dict
 
@@ -126,9 +136,19 @@ class MapVisualization(base.DataSource):
         }
         return view_config
 
-    def get_esri_base_layers_dict(self, basemap_layers):
+    def get_map_config(self):
+        map_config = {
+            "className": "ol-map",
+            "style": {
+                "width": "100%", 
+                "height": "100%"
+            }
+        }
+        return map_config
+
+    def get_esri_base_layers_dict(self, base_map_layers):
         base_map_layers = []
-        for layer in basemap_layers:
+        for layer in base_map_layers:
             layer_dict = {}
             layer_dict["type"] = "WebGLTile"
             layer_dict["prop"] = {
@@ -143,3 +163,22 @@ class MapVisualization(base.DataSource):
             base_map_layers.append(layer_dict)
 
         return base_map_layers
+
+    @staticmethod
+    def get_wbd_layer():
+        return {
+            "type": "ImageLayer",
+            "props": {
+                "source": {
+                    "type": "ImageArcGISRest",
+                    "props": {
+                        "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer",
+                        "params": {"LAYERS": "hide:0"},
+                    },
+                },
+                "visible": False,
+                "name": "wbd Map Service",
+            },
+        }
+    
+
