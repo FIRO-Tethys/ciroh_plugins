@@ -1,10 +1,6 @@
 from intake.source import base
 import requests
-import pandas as pd
-import numpy as np
 import httpx
-
-
 import asyncio
 
 
@@ -14,7 +10,7 @@ class NWMPSReachesSeries(base.DataSource):
     version = "0.0.1"
     name = "nwmp_api"
     visualization_args = {
-        "id": "text",  # empty text it will be an variable input on the dashboard
+        "id": "text",
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Reaches Time Series"
@@ -37,17 +33,27 @@ class NWMPSReachesSeries(base.DataSource):
             "long_range": "longRange",
             "medium_range_blend": "mediumRangeBlend",
         }
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
         super(NWMPSReachesSeries, self).__init__(metadata=metadata)
 
     def read(self):
-        if self.id != "000000":
+        if self.get_metadata():
             self.getData()
         traces = self.create_plotly_data()
-        print(traces)
         layout = self.create_plotly_layout()
         # needs to make  plotly chart placeholder for it
         return {"data": traces, "layout": layout}
 
+    def get_metadata(self):
+        service_url = f"{self.api_base_url}/reaches/{self.id}"
+        rr = requests.get(service_url)
+        if rr.status_code != 200:
+            print("Invalid Reach ID")
+            return False
+        else:
+            return True
+        
     def create_plotly_data(self):
         """
         Process the data object to create a list of traces for Plotly.js.
@@ -200,23 +206,65 @@ class NWMPSReachesSeries(base.DataSource):
                     return response.json()
         except Exception as e:
             print(e)
-            return None  # Ensure the function returns a value
+            return None
 
     async def make_reach_api_calls(self, products):
         tasks = []
         for product in products:
-            task = asyncio.create_task(self.reach_api_call(product))
+            task = self.reach_api_call(product)
             tasks.append(task)
-        # Await all tasks concurrently
         results = await asyncio.gather(*tasks)
         return results
 
     def getData(self):
         try:
             products = self.reach_data.keys()
-            # Capture the results from the async function
-            results = asyncio.run(self.make_reach_api_calls(products))
-            return results  # Return the results
+            # Run the coroutine using the event loop
+            results = self.loop.run_until_complete(self.make_reach_api_calls(products))
+            return results
         except Exception as e:
             print(e)
-            return None  # Ensure the function returns a value
+            return None
+
+
+    # async def reach_api_call(self, product):
+    #     try:
+    #         async with httpx.AsyncClient(verify=False) as client:
+    #             response = await client.get(
+    #                 url=f"{self.api_base_url}/reaches/{self.id}/streamflow",
+    #                 params={"series": product},
+    #                 timeout=None,
+    #             )
+    #             print(f"Request URL: {product}", response.status_code)
+
+    #             if response.status_code != 200:
+    #                 print(f"Error: {response.status_code}")
+    #                 print(response.text)
+    #                 return None
+    #             else:
+    #                 self.reach_data[product] = response.json().get(
+    #                     self.matching_forecast[product], None
+    #                 )
+    #                 return response.json()
+    #     except Exception as e:
+    #         print(e)
+    #         return None  # Ensure the function returns a value
+
+    # async def make_reach_api_calls(self, products):
+    #     tasks = []
+    #     for product in products:
+    #         task = asyncio.create_task(self.reach_api_call(product))
+    #         tasks.append(task)
+    #     # Await all tasks concurrently
+    #     results = await asyncio.gather(*tasks)
+    #     return results
+
+    # def getData(self):
+    #     try:
+    #         products = self.reach_data.keys()
+    #         # Capture the results from the async function
+    #         results = asyncio.run(self.make_reach_api_calls(products))
+    #         return results  # Return the results
+    #     except Exception as e:
+    #         print(e)
+    #         return None  # Ensure the function returns a value
