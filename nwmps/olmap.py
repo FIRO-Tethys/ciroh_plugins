@@ -8,7 +8,7 @@ from intake.source import base
 from pyproj import Transformer
 import geopandas as gpd
 import requests
-
+import json
 
 class MapVisualization(base.DataSource):
     container = "python"
@@ -38,7 +38,7 @@ class MapVisualization(base.DataSource):
         self.base_map_layer = self.get_esri_base_layer_dict(base_map_layer)
         self.service_layer = self.get_service_layer_dict()
         self.view = self.get_view_config(center=self.center, zoom=self.zoom)
-        self.layer_huc = self.make_huc_vector_layer()
+        # self.layer_huc = self.make_huc_vector_layer()
         self.map_config = self.get_map_config()
         super(MapVisualization, self).__init__(metadata=metadata)
 
@@ -46,10 +46,10 @@ class MapVisualization(base.DataSource):
         """Return a version of the xarray with all the data in memory"""
         HUC_LAYER = self.get_wbd_layer()
         
-        if self.layer_huc is not None:
-            layers = [self.base_map_layer, HUC_LAYER, self.layer_huc, self.service_layer]
-        else:
-            layers = [self.base_map_layer, HUC_LAYER, self.service_layer]
+        # if self.layer_huc is not None:
+        #     layers = [self.base_map_layer, HUC_LAYER, self.layer_huc, self.service_layer]
+        # else:
+        layers = [self.base_map_layer, HUC_LAYER, self.service_layer]
         return {
             "layers": layers,
             "view_config": self.view,
@@ -168,8 +168,10 @@ class MapVisualization(base.DataSource):
 
         return base_map_layers
 
-    @staticmethod
-    def get_wbd_layer():
+    
+    def get_wbd_layer(self):
+        layer_id = int(len(str(self.huc_id))/2)
+        huc_level = f"huc{len(str(self.huc_id))}"
         return {
             "type": "ImageLayer",
             "props": {
@@ -177,7 +179,12 @@ class MapVisualization(base.DataSource):
                     "type": "ImageArcGISRest",
                     "props": {
                         "url": "https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer",
-                        "params": {"LAYERS": "hide:0"},
+                        "params": {
+                            "LAYERS": f"show:{layer_id}",
+                            "layerDefs": json.dumps({ f"{layer_id}": f"{huc_level} = '{self.huc_id}'" })
+                            # "layerDefs": json.dumps({ "1": "huc2 = '06' or status='minor' or status='moderate' or status='major'" })
+                            
+                            },
                     },
                 },
                 "visible": False,
