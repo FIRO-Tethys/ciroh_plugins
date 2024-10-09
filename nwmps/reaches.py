@@ -44,7 +44,7 @@ class NWMPSReachesSeries(base.DataSource):
         layout = self.create_plotly_layout()
         # needs to make  plotly chart placeholder for it
         return {"data": traces, "layout": layout}
-
+    
     def get_metadata(self):
         service_url = f"{self.api_base_url}/reaches/{self.id}"
         rr = requests.get(service_url)

@@ -148,6 +148,7 @@ class NWMPService(base.DataSource):
     # Define a function to get the label and color based on recur_cat
     def get_label_and_color(self, filter_attr, symbol_dict):
         # breakpoint()
+        
         match = symbol_dict.get(filter_attr, None)
         if match:
             return match["label"], match["symbol"]["color"]
@@ -159,11 +160,11 @@ class NWMPService(base.DataSource):
             self.service, self.layer_id
         )
         # breakpoint()
-        symbol_dict = {item[drawing_info_val_attr]: item for item in symbols}
+        symbol_dict = {str(item[drawing_info_val_attr]): item for item in symbols}
         # breakpoint()
         # Apply the function to each row in the DataFrame using a lambda function to pass symbol_dict
         df["label"], df["color"] = zip(
-            *df[filter_attr].apply(lambda x: self.get_label_and_color(x, symbol_dict))
+            *df[filter_attr].apply(lambda x: self.get_label_and_color(str(x), symbol_dict))
         )
 
         df["hex"] = df["color"].apply(lambda x: self.rgb_to_hex(x))
@@ -180,7 +181,7 @@ class NWMPService(base.DataSource):
         if not symbols:
             print("No drawing symbols found.")
             return df
-        print(df)
+        # print(df)
         df = self.add_symbols_info(df, symbols, filter_attr)
         print(df)
 
