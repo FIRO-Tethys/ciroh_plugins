@@ -8,7 +8,7 @@ from pygeoogc.exceptions import ZeroMatchedError
 from pygeohydro import WBD
 from intake.source import base
 from .utilities import get_services_dropdown, DATA_SERVICES
-
+import numpy as np
 
 class NWMPService(base.DataSource):
     """
@@ -52,7 +52,6 @@ class NWMPService(base.DataSource):
         print("Reading data from NWMP service")
         print(f"Service: {self.BASE_URL}/{self.service}/MapServer")
         print(f"Layer ID: {self.layer_id}")
-        print(f"HUC Level: {self.huc_level}")
         print(f"HUC IDs: {self.huc_id}")
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
         self.title = self.make_title()
@@ -146,7 +145,7 @@ class NWMPService(base.DataSource):
         return "#000000"
 
     # Define a function to get the label and color based on recur_cat
-    def get_label_and_color(self, filter_attr, symbol_dict):
+    def get_label_and_color_for_value(self, filter_attr, symbol_dict):
         # breakpoint()
         
         match = symbol_dict.get(filter_attr, None)
@@ -155,21 +154,80 @@ class NWMPService(base.DataSource):
         return None, None
 
     def add_symbols_info(self, df, symbols, filter_attr):
-        # Convert the symbol list to a dictionary for quick lookup
         drawing_info_val_attr = self.get_drawing_info_value_attr(
             self.service, self.layer_id
         )
-        # breakpoint()
-        symbol_dict = {str(item[drawing_info_val_attr]): item for item in symbols}
-        # breakpoint()
-        # Apply the function to each row in the DataFrame using a lambda function to pass symbol_dict
+        if drawing_info_val_attr == 'value':
+            df = self.assign_labels_and_colors_based_on_value(df, symbols, filter_attr)
+        else:
+            df = self.assign_labels_and_colors_based_on_range(df, filter_attr, symbols)
+        return df
+
+    def assign_labels_and_colors_based_on_value(self,df, symbol_list, filter_attr):
+        symbol_dict = {str(item['value']): item for item in symbol_list}
         df["label"], df["color"] = zip(
-            *df[filter_attr].apply(lambda x: self.get_label_and_color(str(x), symbol_dict))
+            *df[filter_attr].apply(lambda x: self.get_label_and_color_for_value(str(x), symbol_dict))
         )
 
         df["hex"] = df["color"].apply(lambda x: self.rgb_to_hex(x))
-
         return df
+    
+
+    def assign_labels_and_colors_based_on_range(self, 
+                                                df, 
+                                                value_column, 
+                                                symbol_list, 
+                                                label_column='label', 
+                                                color_column='hex', 
+                                                ):
+        """
+        Assign labels and colors to a DataFrame based on a value column and a symbol list.
+
+        Parameters:
+        - df: pandas.DataFrame
+            The DataFrame containing the values to categorize.
+        - value_column: str
+            The name of the column in df containing the values to categorize.
+        - symbol_list: list of dicts
+            The list of symbols containing classMaxValue, label, and color information.
+        - label_column: str, optional (default='label')
+            The name of the column to be created for labels.
+        - color_column: str, optional (default='color')
+            The name of the column to be created for colors.
+        - hex_color_column: str, optional (default='color_hex')
+            The name of the column to be created for hex color codes.
+
+        Returns:
+        - df: pandas.DataFrame
+            The DataFrame with new columns added for labels and colors.
+        """
+        # breakpoint()
+        # Step 1: Extract bins, labels, and colors from the symbol_list
+        bins = [0] + [item['classMaxValue'] for item in symbol_list[:-1]] + [np.inf]
+        labels = [item['label'] for item in symbol_list]
+        colors = [item['symbol']['color'] for item in symbol_list]
+
+        # Create a mapping from labels to colors
+        label_to_color = dict(zip(labels, colors))
+
+        # Ensure that the value_column is numeric
+        df[value_column] = pd.to_numeric(df[value_column], errors='coerce')
+
+        # Step 2: Use pandas.cut to assign labels based on bins
+        df[label_column] = pd.cut(
+            df[value_column],
+            bins=bins,
+            labels=labels,
+            right=True,
+            include_lowest=True
+        )
+        
+        # Step 3: Map the labels to colors to create the color column
+        label_to_color_hex = {label: self.rgb_to_hex(color) for label, color in label_to_color.items()}
+        df[color_column] = df[label_column].map(label_to_color_hex)
+        # breakpoint()
+        return df
+
 
     def add_symbols(self, df):
         """Add symbols to the DataFrame."""
@@ -183,7 +241,7 @@ class NWMPService(base.DataSource):
             return df
         # print(df)
         df = self.add_symbols_info(df, symbols, filter_attr)
-        print(df)
+        
 
         return df
 
@@ -250,6 +308,8 @@ class NWMPService(base.DataSource):
 
     def get_statistics(self, df):
         """Compute statistics from the DataFrame."""
-        grouped = df.groupby(by=["label", "hex"], as_index=False).size()
+        
+        grouped = df.groupby(by=["label","hex"], as_index=False).size()
+        grouped = grouped[grouped['size'] > 0].reset_index(drop=True) #tmp fix
         stats = grouped.to_dict("records")
         return stats
