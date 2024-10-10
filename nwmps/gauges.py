@@ -25,16 +25,13 @@ class NWMPSGaugesSeries(base.DataSource):
     def read(self):
         self.data = self.get_gauge_data()
         self.metadata = self.get_gauge_metadata()
-        traces = self.create_traces(self.data)
+        traces = self.create_traces()
         # Generate flood event shapes and annotations
         flood_data = self.metadata.get("flood", {})
         shapes, annotations = self.create_flood_events(flood_data)
-
-        # Compute the secondary data range
         secondary_range = self.get_secondary_data_range(self.data)
-        print(secondary_range)
         # Generate layout
-        layout = self.create_layout(self.data, shapes, annotations, secondary_range)
+        layout = self.create_layout(shapes, annotations, secondary_range)
         return {"data": traces, "layout": layout}
 
     def get_gauge_data(self):
@@ -77,8 +74,7 @@ class NWMPSGaugesSeries(base.DataSource):
         except Exception:
             return None
 
-    @staticmethod
-    def create_traces(data):
+    def create_traces(self):
         """
         Creates JSON-serializable traces for the provided time series data.
 
@@ -94,8 +90,8 @@ class NWMPSGaugesSeries(base.DataSource):
         datasets = ["observed", "forecast"]
 
         for dataset_name in datasets:
-            if dataset_name in data:
-                dataset = data[dataset_name]
+            if dataset_name in self.data:
+                dataset = self.data[dataset_name]
                 data_points = dataset.get("data", [])
 
                 # Extract time, primary, and secondary values
@@ -111,9 +107,9 @@ class NWMPSGaugesSeries(base.DataSource):
                 # Create hover text
                 hover_text = []
                 for t, p, s in zip(times, primary_values, secondary_values):
-                    text = f"Time: {t}<br>Primary: {p}"
+                    text = f"Time: {t}<br>{dataset.get('primaryUnits')}: {p}"
                     if s is not None and s >= 0:
-                        text += f"<br>Secondary: {s}"
+                        text += f"<br>{dataset.get('secondaryUnits')}: {s}"
                     hover_text.append(text)
 
                 # Define the trace
@@ -128,6 +124,9 @@ class NWMPSGaugesSeries(base.DataSource):
                 }
 
                 traces.append(trace)
+
+                traceFake = {"x": times[0], "y": [0], "yaxis": "y2", "visible": False}
+                traces.append(traceFake)
 
         return traces
 
@@ -181,16 +180,16 @@ class NWMPSGaugesSeries(base.DataSource):
                 # Add an annotation (label) for the flood stage
                 annotations.append(
                     {
-                        "x": 1,  # Position at the far right of the plot
+                        "x": 0,  # Position at the far right of the plot
                         "y": stage,
                         "xref": "paper",
                         "yref": "y1",
-                        "text": f"{stage} {flood_data.get('stageUnits', '')}".strip(),
+                        "text": f"{stage} {flood_data.get('stageUnits', '')} - {category}".strip(),
                         "showarrow": False,
                         "xanchor": "left",
                         "yanchor": "bottom",
                         "font": {
-                            "color": category_colors.get(category.lower(), "black"),
+                            "color": "black",
                             "size": 12,
                         },
                     }
@@ -237,8 +236,20 @@ class NWMPSGaugesSeries(base.DataSource):
             )
             return (min_secondary - padding, max_secondary + padding)
 
+    # Helper function to extract names and units
     @staticmethod
-    def create_layout(data, shapes, annotations, secondary_range):
+    def extract_names_units(dataset, data_type):
+        if data_type == "primary":
+            return (dataset.get("primaryName", ""), dataset.get("primaryUnits", ""))
+        elif data_type == "secondary":
+            return (
+                dataset.get("secondaryName", ""),
+                dataset.get("secondaryUnits", ""),
+            )
+        else:
+            raise ValueError("data_type must be 'primary' or 'secondary'")
+
+    def create_layout(self, shapes, annotations, secondary_range):
         """
         Creates a JSON-serializable layout for the time series chart, including flood event lines.
 
@@ -257,32 +268,20 @@ class NWMPSGaugesSeries(base.DataSource):
         secondary_name = ""
         secondary_units = ""
 
-        # Helper function to extract names and units
-        def extract_names_units(dataset, data_type):
-            if data_type == "primary":
-                return (dataset.get("primaryName", ""), dataset.get("primaryUnits", ""))
-            elif data_type == "secondary":
-                return (
-                    dataset.get("secondaryName", ""),
-                    dataset.get("secondaryUnits", ""),
-                )
-            else:
-                raise ValueError("data_type must be 'primary' or 'secondary'")
-
         # Extract names and units from 'observed' or 'forecast' data
-        if "observed" in data:
-            primary_name, primary_units = extract_names_units(
-                data["observed"], "primary"
+        if "observed" in self.data:
+            primary_name, primary_units = self.extract_names_units(
+                self.data["observed"], "primary"
             )
-            secondary_name, secondary_units = extract_names_units(
-                data["observed"], "secondary"
+            secondary_name, secondary_units = self.extract_names_units(
+                self.data["observed"], "secondary"
             )
-        elif "forecast" in data:
-            primary_name, primary_units = extract_names_units(
-                data["forecast"], "primary"
+        elif "forecast" in self.data:
+            primary_name, primary_units = self.extract_names_units(
+                self.data["forecast"], "primary"
             )
-            secondary_name, secondary_units = extract_names_units(
-                data["forecast"], "secondary"
+            secondary_name, secondary_units = self.extract_names_units(
+                self.data["forecast"], "secondary"
             )
         else:
             primary_name = "Primary"
@@ -291,7 +290,7 @@ class NWMPSGaugesSeries(base.DataSource):
             secondary_units = ""
 
         layout = {
-            "title": "Time Series Plot",
+            "title": f"{self.metadata.get('name', '')} Gauge",
             "xaxis": {"title": "Time"},
             "yaxis": {
                 "title": f"{primary_name} ({primary_units})".strip(),
