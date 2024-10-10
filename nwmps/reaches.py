@@ -19,6 +19,7 @@ class NWMPSReachesSeries(base.DataSource):
     def __init__(self, id, metadata=None):
         self.api_base_url = "https://api.water.noaa.gov/nwps/v1"
         self.id = id
+        self.metadata = None
         self.reach_data = {
             "analysis_assimilation": None,
             "short_range": None,
@@ -44,7 +45,7 @@ class NWMPSReachesSeries(base.DataSource):
         layout = self.create_plotly_layout()
         # needs to make  plotly chart placeholder for it
         return {"data": traces, "layout": layout}
-    
+
     def get_metadata(self):
         service_url = f"{self.api_base_url}/reaches/{self.id}"
         rr = requests.get(service_url)
@@ -52,8 +53,9 @@ class NWMPSReachesSeries(base.DataSource):
             print("Invalid Reach ID")
             return False
         else:
+            self.metadata = rr.json()
             return True
-        
+
     def create_plotly_data(self):
         """
         Process the data object to create a list of traces for Plotly.js.
@@ -123,7 +125,7 @@ class NWMPSReachesSeries(base.DataSource):
 
         return traces
 
-    def create_plotly_layout(self, yaxis_title="Flow", xaxis_title="Time"):
+    def create_plotly_layout(self, yaxis_title="Flow"):
         """
         Create a layout dictionary for Plotly.js based on the data object.
 
@@ -159,9 +161,15 @@ class NWMPSReachesSeries(base.DataSource):
             yaxis_title_with_units = yaxis_title
 
         layout = {
-            "title": {"text": f"Reach Id: {self.id}"},
+            "title": "<b>Reach</b>: {} <br><sub>ID:{} </sub>".format(
+                (
+                    self.metadata.get("name", "Unknown")
+                    if self.metadata.get("name", "Unknown") != ""
+                    else "Unknown"
+                ),
+                self.id,
+            ),
             "xaxis": {
-                "title": {"text": xaxis_title},
                 "type": "date",  # Ensures the x-axis is treated as dates
                 "tickformat": "%Y-%m-%d\n%H:%M",  # Format for date ticks
             },
@@ -183,6 +191,8 @@ class NWMPSReachesSeries(base.DataSource):
             "hovermode": "x unified",  # Shows hover text for all traces at once
         }
 
+        # + "<br>"
+        # + {"text": f"id: {self.id}"},
         return layout
 
     async def reach_api_call(self, product):
@@ -225,46 +235,3 @@ class NWMPSReachesSeries(base.DataSource):
         except Exception as e:
             print(e)
             return None
-
-
-    # async def reach_api_call(self, product):
-    #     try:
-    #         async with httpx.AsyncClient(verify=False) as client:
-    #             response = await client.get(
-    #                 url=f"{self.api_base_url}/reaches/{self.id}/streamflow",
-    #                 params={"series": product},
-    #                 timeout=None,
-    #             )
-    #             print(f"Request URL: {product}", response.status_code)
-
-    #             if response.status_code != 200:
-    #                 print(f"Error: {response.status_code}")
-    #                 print(response.text)
-    #                 return None
-    #             else:
-    #                 self.reach_data[product] = response.json().get(
-    #                     self.matching_forecast[product], None
-    #                 )
-    #                 return response.json()
-    #     except Exception as e:
-    #         print(e)
-    #         return None  # Ensure the function returns a value
-
-    # async def make_reach_api_calls(self, products):
-    #     tasks = []
-    #     for product in products:
-    #         task = asyncio.create_task(self.reach_api_call(product))
-    #         tasks.append(task)
-    #     # Await all tasks concurrently
-    #     results = await asyncio.gather(*tasks)
-    #     return results
-
-    # def getData(self):
-    #     try:
-    #         products = self.reach_data.keys()
-    #         # Capture the results from the async function
-    #         results = asyncio.run(self.make_reach_api_calls(products))
-    #         return results  # Return the results
-    #     except Exception as e:
-    #         print(e)
-    #         return None  # Ensure the function returns a value

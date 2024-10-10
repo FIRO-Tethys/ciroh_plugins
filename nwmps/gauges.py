@@ -289,8 +289,10 @@ class NWMPSGaugesSeries(base.DataSource):
             secondary_units = ""
 
         layout = {
-            "title": f"{self.metadata.get('name', '')} Gauge",
-            "xaxis": {"title": "Time", "tickformat": "%I %p<br>%b %d"},
+            "title": "<b>Gauge</b>: {} <br><sub>ID:{}</sub>".format(
+                self.metadata.get("name", "Unknown"), self.id
+            ),
+            "xaxis": {"tickformat": "%I %p<br>%b %d"},
             "yaxis": {
                 "title": f"{primary_name} ({primary_units})".strip(),
                 "side": "left",
@@ -302,7 +304,11 @@ class NWMPSGaugesSeries(base.DataSource):
                 "showgrid": False,
                 "range": secondary_range,  # Set the range based on secondary data
             },
-            "legend": {"x": 0, "y": 1.1, "orientation": "h"},
+            "legend": {
+                "orientation": "h",  # Horizontal legend at the bottom
+                "x": 0,
+                "y": -0.2,
+            },
             "margin": {"l": 50, "r": 50, "t": 50, "b": 50},
             "hovermode": "x unified",
             "shapes": shapes,  # Incorporate flood event lines
