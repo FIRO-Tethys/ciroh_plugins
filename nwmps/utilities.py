@@ -1,11 +1,15 @@
 def get_base_map_layers_dropdown():
-    return  [
+    return [
         {
-            "label": "Esri Basemaps",
+            "label": "ArcGIS Map Service Base Maps",
             "options": [
                 {
                     "label": "World Light Gray Base",
                     "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
+                },
+                {
+                    "label": "World Dark Gray Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer",
                 },
                 {
                     "label": "World Topo Map",
@@ -39,25 +43,33 @@ def get_base_map_layers_dropdown():
                     "label": "World Transportation",
                     "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Transportation/MapServer",
                 },
+                {
+                    "label": "World Hillshade Dark",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade_Dark/MapServer",
+                },
+                {
+                    "label": "World Hillshade",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
+                },
             ],
         }
     ]
 
+
 def get_services_dropdown():
     return [
-    {
-        "label": service["name"],
-        "options": [
-            {
-                "label": layer["name"],
-                "value": f'{service_key}-{layer["id"]}',
-            }
-            for layer in service["layers"]
-        ],
-    }
-    for service_key, service in DATA_SERVICES.items()
+        {
+            "label": service["name"],
+            "options": [
+                {
+                    "label": layer["name"],
+                    "value": f'{service_key}-{layer["id"]}',
+                }
+                for layer in service["layers"]
+            ],
+        }
+        for service_key, service in DATA_SERVICES.items()
     ]
-
 
 
 DATA_SERVICES = {
@@ -377,10 +389,6 @@ def get_service_layers():
             obj = {"label": layer["name"], "value": f"{layer['id']}"}
             layers.append(obj)
     return layers
-
-
-
-
 
 
 # SOMETHIGS THAT WE MIGHT NEED LATER ON
