@@ -1,7 +1,9 @@
 from intake.source import base
 import httpx
-import datetime
+
+# import datetime
 import pandas as pd
+from datetime import datetime
 
 
 # This will be used for the TimeSeries of the NWM data
@@ -93,21 +95,18 @@ class NWMPSGaugesSeries(base.DataSource):
             if dataset_name in self.data:
                 dataset = self.data[dataset_name]
                 data_points = dataset.get("data", [])
-
-                # Extract time, primary, and secondary values
-                times = [
-                    datetime.datetime.fromisoformat(
-                        d["validTime"].replace("Z", "+00:00")
-                    ).isoformat()
-                    for d in data_points
-                ]
+                times = [d["validTime"] for d in data_points]
                 primary_values = [d.get("primary", None) for d in data_points]
                 secondary_values = [d.get("secondary", None) for d in data_points]
 
                 # Create hover text
                 hover_text = []
                 for t, p, s in zip(times, primary_values, secondary_values):
-                    text = f"Time: {t}<br>{dataset.get('primaryUnits')}: {p}"
+                    utc_time = datetime.strptime(t, "%Y-%m-%dT%H:%M:%SZ")
+                    formatted_time = utc_time.strftime("%a %B %d %Y %I:%M:%S %p")
+                    text = (
+                        f"Time: {formatted_time}<br>{dataset.get('primaryUnits')}: {p}"
+                    )
                     if s is not None and s >= 0:
                         text += f"<br>{dataset.get('secondaryUnits')}: {s}"
                     hover_text.append(text)
@@ -291,7 +290,7 @@ class NWMPSGaugesSeries(base.DataSource):
 
         layout = {
             "title": f"{self.metadata.get('name', '')} Gauge",
-            "xaxis": {"title": "Time"},
+            "xaxis": {"title": "Time", "tickformat": "%I %p<br>%b %d"},
             "yaxis": {
                 "title": f"{primary_name} ({primary_units})".strip(),
                 "side": "left",
