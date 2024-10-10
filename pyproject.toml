@@ -22,7 +22,6 @@ dependencies = [
     "pygeoogc",
     "pygeoutils",
     "pygeohydro",
-    # "arcgis",
     "geoalchemy2",
     "httpx",
     "asyncio",
@@ -32,6 +31,7 @@ dependencies = [
 nwmp_data_service = "nwmps.service:NWMPService"
 nwmp_map = "nwmps.olmap:MapVisualization"
 nwmp_reaches_series = "nwmps.reaches:NWMPSReachesSeries"
+nwmp_gauges_series = "nwmps.gauges:NWMPSGaugesSeries"
 
 [tool.setuptools]
 include-package-data = true
