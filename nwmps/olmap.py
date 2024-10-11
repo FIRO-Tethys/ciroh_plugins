@@ -165,7 +165,6 @@ class MapVisualization(base.DataSource):
                         },
                     },
                 },
-                "visible": False,
                 "name": "wbd Map Service",
             },
         }
