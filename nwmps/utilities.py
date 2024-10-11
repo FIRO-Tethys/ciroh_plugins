@@ -73,13 +73,6 @@ def get_services_dropdown():
     ]
 
 
-#
-# River Stages 240 hour Forecast (10)
-#
-#
-#
-#
-#
 DATA_SERVICES = {
     "riv_gauges": {
         "name": " National Water Prediction Service (NWPS) River Gauge System",
@@ -460,13 +453,13 @@ DATA_SERVICES = {
                 "drawingInfoAttr": "classBreakInfos",
                 "drawingInfoValueAttr": "classMaxValue",
             },
-            # {
-            #     "name": "10 Day - NWM Waterway Length Flooded (2)",
-            #     "filter_attr": "nwm_waterway_length_flooded_percent",
-            #     "id": 2,
-            #     "drawingInfoAttr": "uniqueValueInfos",
-            #     "drawingInfoValueAttr": "value",
-            # },
+            {
+                "name": "10 Day - NWM Waterway Length Flooded (2)",
+                "filter_attr": "nwm_waterway_length_flooded_percent",
+                "id": 2,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
         ],
     },
     "mrf_gfs_5day_rapid_onset_flooding_probability": {
@@ -508,11 +501,13 @@ DATA_SERVICES = {
                 "drawingInfoAttr": "classBreakInfos",
                 "drawingInfoValueAttr": "classMaxValue",
             },
-            # {
-            #     "name": "Days 1-5 - Hotspots - Average Rapid Onset Flooding Probability (5)",
-            #     "filter_attr": "weighted_mean",
-            #     "id": 5,
-            # },
+            {
+                "name": "Days 1-5 - Hotspots - Average Rapid Onset Flooding Probability (5)",
+                "filter_attr": "weighted_mean",
+                "id": 5,
+                "drawingInfoAttr": "classBreakInfos",
+                "drawingInfoValueAttr": "classMaxValue",
+            },
         ],
     },
 }
@@ -542,73 +537,3 @@ def get_service_layers():
     #     }
     #   }
     # },
-
-
-# SOMETHIGS THAT WE MIGHT NEED LATER ON
-# def shaplyGeom2ArcGISGeom(self, geom):
-#     geom_type = geom.geom_type
-#     if geom_type == "Point":
-#         x, y = geom.coords[0]
-#         return {"x": x, "y": y}
-#     elif geom_type == "LineString":
-#         coords = [{"x": x, "y": y} for x, y in geom.coords]
-#         return {"paths": [coords]}
-#     elif geom_type == "Polygon":
-#         exterior = [{"x": x, "y": y} for x, y in geom.exterior.coords]
-#         interiors = [
-#             [{"x": x, "y": y} for x, y in interior.coords]
-#             for interior in geom.interiors
-#         ]
-#         return {"rings": [exterior] + interiors}
-#     elif geom_type == "MultiPoint":
-#         points = [{"x": p.x, "y": p.y} for p in geom.geoms]
-#         return {"points": points}
-#     elif geom_type == "MultiLineString":
-#         paths = [[{"x": x, "y": y} for x, y in line.coords] for line in geom.geoms]
-#         return {"paths": paths}
-#     elif geom_type == "MultiPolygon":
-#         rings = []
-#         for polygon in geom.geoms:
-#             exterior = [{"x": x, "y": y} for x, y in polygon.exterior.coords]
-#             interiors = [
-#                 [{"x": x, "y": y} for x, y in interior.coords]
-#                 for interior in polygon.interiors
-#             ]
-#             rings.extend([exterior] + interiors)
-#         return {"rings": rings}
-#     else:
-#         raise ValueError(f"Unsupported geometry type: {geom_type}")
-
-# def arcGisGeomObject(self, esri_geom_dict):
-#     return Geometry(esri_geom_dict)
-
-
-# def get_huc_options():
-#     """
-#     Create a dictionary containing all the HUC IDs of the Watershed Boundary Dataset.
-
-#     Returns:
-#         list: A list of dictionaries, each containing HUC level and options.
-#     """
-
-#     huc_levels = [2, 4, 6, 8, 10, 12]
-#     huc_data = []
-#     for huc_level in huc_levels:
-#         huc_level_str = f"huc{huc_level}"
-#         wbd = WBD(huc_level_str)
-#         breakpoint()
-#         try:
-#             print(f"Fetching data for {huc_level_str}...")
-#             # Fetch HUC IDs for the current level
-#             gdf = wbd.get_huc_boundaries(huc_level_str)
-#             # Extract unique HUC IDs and sort them
-#             huc_ids = sorted(gdf[huc_level_str].unique())
-#             # Build the options list
-#             options = [{"label": huc_id, "value": huc_id} for huc_id in huc_ids]
-#             # Add to huc_data
-#             huc_data.append({"label": huc_level_str, "options": options})
-#         except Exception as e:
-#             print(f"Error getting HUC level {huc_level}: {e}")
-#             continue
-
-#     return huc_data

@@ -6,8 +6,6 @@ from .utilities import (
 
 from intake.source import base
 from pyproj import Transformer
-import geopandas as gpd
-import requests
 import json
 
 
@@ -67,36 +65,6 @@ class MapVisualization(base.DataSource):
             result.append(service_dict)
         return result
 
-    # Not using this function at the moment, but it can be used to get the HUC layer in vector format
-    def make_huc_vector_layer(self):
-        if len(str(self.huc_id)) < 2 or len(str(self.huc_id)) > 12:
-            return None
-        huc_level = f"huc{len(str(self.huc_id))}"
-        service_url = f"https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer/{int(len(str(self.huc_id))/2)}/query"
-        payload = {"where": f"{huc_level} = '{self.huc_id}'", "f": "geojson"}
-        rr = requests.get(service_url, params=payload)
-        if rr.status_code != 200:
-            return None
-        gdf = gpd.read_file(rr.url)
-        centroid = gdf.geometry.unary_union.centroid
-        self.view = self.get_view_config(
-            center=[centroid.x, centroid.y], zoom=self.zoom
-        )
-        layer_dict = {}
-        layer_dict["type"] = "VectorLayer"
-        layer_dict["props"] = {
-            "source": {
-                "type": "Vector",
-                "props": {
-                    "url": rr.url,
-                    "format": {"type": "GeoJSON"},
-                },
-            },
-            "style": "Polygon",
-            "name": f"{self.huc_id} huc id",
-        }
-        return layer_dict
-
     def get_service_layer_dict(self):
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
         layer_dict = {}
@@ -106,7 +74,9 @@ class MapVisualization(base.DataSource):
                 "type": "ImageArcGISRest",
                 "props": {
                     "url": service_url,
-                    "params": {"LAYERS": f"show:{self.layer_id}"},
+                    "params": {
+                        "LAYERS": f"show:{self.layer_id}",
+                    },
                 },
             },
             "name": f'{self.service.replace("_"," ").title()}',

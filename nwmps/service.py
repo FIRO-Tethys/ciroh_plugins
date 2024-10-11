@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 from shapely.geometry import MultiPolygon
-from pynhd import NHDPlusHR
 from pygeoogc import ArcGISRESTful
 import pygeoutils as geoutils
 from pygeoogc.exceptions import ZeroMatchedError
