@@ -2,11 +2,15 @@ from .utilities import (
     get_base_map_layers_dropdown,
     get_services_dropdown,
     DATA_SERVICES,
+    rgb_to_hex,
+    get_layer_info,
+    get_drawing_info,
 )
 
 from intake.source import base
 from pyproj import Transformer
 import json
+import requests
 
 
 class MapVisualization(base.DataSource):
@@ -41,6 +45,7 @@ class MapVisualization(base.DataSource):
         self.service_layer = self.get_service_layer_dict()
         self.view = self.get_view_config(center=self.center, zoom=self.zoom)
         self.map_config = self.get_map_config()
+        self.legend = self.make_legend()
         super(MapVisualization, self).__init__(metadata=metadata)
 
     def read(self):
@@ -50,6 +55,7 @@ class MapVisualization(base.DataSource):
             "layers": layers,
             "view_config": self.view,
             "map_config": self.map_config,
+            "legend": self.legend,
         }
 
     def get_service_layers(self):
@@ -82,6 +88,17 @@ class MapVisualization(base.DataSource):
             "name": f'{self.service.replace("_"," ").title()}',
         }
         return layer_dict
+
+    def make_legend(self):
+        """Create a list of dicts with color in hex and label."""
+        layer_info = get_layer_info(self.BASE_URL, self.service, self.layer_id)
+        drawing_info = get_drawing_info(layer_info, self.service, self.layer_id)
+        legend = []
+        for item in drawing_info:
+            hex_color = rgb_to_hex(item["symbol"]["color"])
+            legend.append({"color": hex_color, "label": item["label"]})
+
+        return legend
 
     @staticmethod
     def get_esri_base_layer_dict(base_map_layer):

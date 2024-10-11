@@ -6,7 +6,13 @@ import pygeoutils as geoutils
 from pygeoogc.exceptions import ZeroMatchedError
 from pygeohydro import WBD
 from intake.source import base
-from .utilities import get_services_dropdown, DATA_SERVICES
+from .utilities import (
+    get_services_dropdown,
+    DATA_SERVICES,
+    get_layer_info,
+    get_drawing_info,
+    rgb_to_hex,
+)
 import numpy as np
 
 
@@ -37,7 +43,7 @@ class NWMPService(base.DataSource):
         self.BASE_URL = "/".join(parts[:-3])
         self.huc_level = f"huc{len(str(huc_id))}"
         self.huc_id = huc_id
-        self.layer_info = self.get_layer_info()
+        self.layer_info = get_layer_info(self.BASE_URL, self.service, self.layer_id)
         self.title = None
         self.description = None
 
@@ -82,37 +88,6 @@ class NWMPService(base.DataSource):
             print(f"Error fetching service info: {e}")
             return {}
 
-    def get_layer_info(self):
-        """Retrieve layer information from the NWMP service."""
-        layer_url = f"{self.BASE_URL}/{self.service}/MapServer/{self.layer_id}"
-        try:
-            response = requests.get(f"{layer_url}?f=json")
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            print(f"Error fetching layer info: {e}")
-            return {}
-
-    def get_drawing_info(self):
-        """Extract drawing information from layer info."""
-        renderer = self.layer_info.get("drawingInfo", {}).get("renderer", {})
-        drawing_attr = self.get_drawing_info_attr(self.service, self.layer_id)
-        drawings = renderer.get(drawing_attr, {})
-        return drawings
-
-    @staticmethod
-    def get_drawing_info_attr(service_name, layer_id):
-        service = DATA_SERVICES.get(service_name)
-        if not service:
-            return None
-
-        layers = service.get("layers", [])
-        for layer in layers:
-            if layer.get("id") == layer_id:
-                return layer.get("drawingInfoAttr")
-
-        return None
-
     @staticmethod
     def get_drawing_info_value_attr(service_name, layer_id):
         service = DATA_SERVICES.get(service_name)
@@ -124,13 +99,6 @@ class NWMPService(base.DataSource):
             if layer.get("id") == layer_id:
                 return layer.get("drawingInfoValueAttr")
         return None
-
-    @staticmethod
-    def rgb_to_hex(rgb_color):
-        """Convert RGB color to hex color code."""
-        if rgb_color and len(rgb_color) >= 3:
-            return "#{:02x}{:02x}{:02x}".format(*rgb_color[:3])
-        return "#000000"
 
     # Define a function to get the label and color based on recur_cat
     def get_label_and_color_for_value(self, filter_attr, symbol_dict):
@@ -159,7 +127,7 @@ class NWMPService(base.DataSource):
             )
         )
 
-        df["hex"] = df["color"].apply(lambda x: self.rgb_to_hex(x))
+        df["hex"] = df["color"].apply(lambda x: rgb_to_hex(x))
         return df
 
     def assign_labels_and_colors_based_on_range(
@@ -221,7 +189,7 @@ class NWMPService(base.DataSource):
         # breakpoint()
         filter_attr = self.get_color_attribute()
         # breakpoint()
-        symbols = self.get_drawing_info()
+        symbols = get_drawing_info(self.layer_info, self.service, self.layer_id)
         # print(symbols)
         if not symbols:
             print("No drawing symbols found.")

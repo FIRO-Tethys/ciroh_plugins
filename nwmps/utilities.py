@@ -1,76 +1,4 @@
-def get_base_map_layers_dropdown():
-    return [
-        {
-            "label": "ArcGIS Map Service Base Maps",
-            "options": [
-                {
-                    "label": "World Light Gray Base",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
-                },
-                {
-                    "label": "World Dark Gray Base",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer",
-                },
-                {
-                    "label": "World Topo Map",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
-                },
-                {
-                    "label": "World Imagery",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
-                },
-                {
-                    "label": "World Terrain Base",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer",
-                },
-                {
-                    "label": "World Street Map",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer",
-                },
-                {
-                    "label": "World Physical Map",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer",
-                },
-                {
-                    "label": "World Shaded Relief",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer",
-                },
-                {
-                    "label": "World Terrain Reference",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
-                },
-                {
-                    "label": "World Transportation",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Transportation/MapServer",
-                },
-                {
-                    "label": "World Hillshade Dark",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade_Dark/MapServer",
-                },
-                {
-                    "label": "World Hillshade",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
-                },
-            ],
-        }
-    ]
-
-
-def get_services_dropdown():
-    return [
-        {
-            "label": service["name"],
-            "options": [
-                {
-                    "label": layer["name"],
-                    "value": f"{service['url']}/{service_key}/MapServer/{layer['id']}",
-                    # "value": f'{service_key}-{layer["id"]}',
-                }
-                for layer in service["layers"]
-            ],
-        }
-        for service_key, service in DATA_SERVICES.items()
-    ]
+import requests
 
 
 DATA_SERVICES = {
@@ -513,27 +441,125 @@ DATA_SERVICES = {
 }
 
 
+def get_base_map_layers_dropdown():
+    return [
+        {
+            "label": "ArcGIS Map Service Base Maps",
+            "options": [
+                {
+                    "label": "World Light Gray Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
+                },
+                {
+                    "label": "World Dark Gray Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer",
+                },
+                {
+                    "label": "World Topo Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
+                },
+                {
+                    "label": "World Imagery",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+                },
+                {
+                    "label": "World Terrain Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer",
+                },
+                {
+                    "label": "World Street Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer",
+                },
+                {
+                    "label": "World Physical Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer",
+                },
+                {
+                    "label": "World Shaded Relief",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer",
+                },
+                {
+                    "label": "World Terrain Reference",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
+                },
+                {
+                    "label": "World Transportation",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Transportation/MapServer",
+                },
+                {
+                    "label": "World Hillshade Dark",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade_Dark/MapServer",
+                },
+                {
+                    "label": "World Hillshade",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
+                },
+            ],
+        }
+    ]
+
+
+def get_services_dropdown():
+    return [
+        {
+            "label": service["name"],
+            "options": [
+                {
+                    "label": layer["name"],
+                    "value": f"{service['url']}/{service_key}/MapServer/{layer['id']}",
+                }
+                for layer in service["layers"]
+            ],
+        }
+        for service_key, service in DATA_SERVICES.items()
+    ]
+
+
 def get_service_layers():
     layers = []
     # Iterate over DATA_SERVICES
-    for service_key, service_value in DATA_SERVICES.items():
+    for _, service_value in DATA_SERVICES.items():
         for layer in service_value["layers"]:
             obj = {"label": layer["name"], "value": f"{layer['id']}"}
             layers.append(obj)
     return layers
 
-    # {
-    #   type: "ImageLayer",
-    #   props: {
-    #     source:{
-    #       type: "ImageArcGISRest",
-    #       props:{
-    #         url: 'https://mapservices.weather.noaa.gov/eventdriven/rest/services/water/riv_gauges/MapServer',
-    #         params: {
-    #           LAYERS: "show:0",
-    #           layerDefs: JSON.stringify({ "0": "status = 'action' or status='minor' or status='moderate' or status='major'" })
-    #         }
-    #       }
-    #     }
-    #   }
-    # },
+
+def rgb_to_hex(rgb_color):
+    """Convert RGB color to hex color code."""
+    if rgb_color and len(rgb_color) >= 3:
+        return "#{:02x}{:02x}{:02x}".format(*rgb_color[:3])
+    return "#000000"
+
+
+def get_drawing_info_attr(service_name, layer_id):
+    service = DATA_SERVICES.get(service_name)
+    if not service:
+        return None
+
+    layers = service.get("layers", [])
+    for layer in layers:
+        if layer.get("id") == layer_id:
+            return layer.get("drawingInfoAttr")
+
+    return None
+
+
+def get_drawing_info(layer_info, service, layer_id):
+    """Extract drawing information from layer info."""
+    renderer = layer_info.get("drawingInfo", {}).get("renderer", {})
+    drawing_attr = get_drawing_info_attr(service, layer_id)
+    drawings = renderer.get(drawing_attr, {})
+    return drawings
+
+
+def get_layer_info(base_url, service, layer_id):
+    """Retrieve layer information from the NWMP service."""
+    layer_url = f"{base_url}/{service}/MapServer/{layer_id}"
+    try:
+        response = requests.get(f"{layer_url}?f=json")
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        print(f"Error fetching layer info: {e}")
+        return {}
