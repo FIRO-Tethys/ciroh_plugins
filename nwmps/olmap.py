@@ -10,7 +10,11 @@ from .utilities import (
 from intake.source import base
 from pyproj import Transformer
 import json
-import requests
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class MapVisualization(base.DataSource):
@@ -32,8 +36,6 @@ class MapVisualization(base.DataSource):
     def __init__(
         self, latitude, longitude, zoom, base_map_layer, services, huc_id, metadata=None
     ):
-        # store important kwargs
-
         self.center = [longitude, latitude]
         self.zoom = zoom
         self.huc_id = huc_id
@@ -49,6 +51,7 @@ class MapVisualization(base.DataSource):
         super(MapVisualization, self).__init__(metadata=metadata)
 
     def read(self):
+        logger.info("Reading map data configuration")
         HUC_LAYER = self.get_wbd_layer()
         layers = [self.base_map_layer, HUC_LAYER, self.service_layer]
         return {
@@ -60,6 +63,7 @@ class MapVisualization(base.DataSource):
 
     def get_service_layers(self):
         result = []
+        logger.info("Fetching service layers")
         for service_value in DATA_SERVICES.items():
             service_dict = {
                 "name": service_value["name"],
@@ -73,24 +77,27 @@ class MapVisualization(base.DataSource):
 
     def get_service_layer_dict(self):
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
-        layer_dict = {}
-        layer_dict["type"] = "ImageLayer"
-        layer_dict["props"] = {
-            "source": {
-                "type": "ImageArcGISRest",
-                "props": {
-                    "url": service_url,
-                    "params": {
-                        "LAYERS": f"show:{self.layer_id}",
+        layer_dict = {
+            "type": "ImageLayer",
+            "props": {
+                "source": {
+                    "type": "ImageArcGISRest",
+                    "props": {
+                        "url": service_url,
+                        "params": {
+                            "LAYERS": f"show:{self.layer_id}",
+                        },
                     },
                 },
+                "name": f'{self.service.replace("_"," ").title()}',
             },
-            "name": f'{self.service.replace("_"," ").title()}',
         }
+        logger.info(f"Service layer dictionary created for {self.service}")
         return layer_dict
 
     def make_legend(self):
         """Create a list of dicts with color in hex and label."""
+        logger.info("Creating legend for the map")
         layer_info = get_layer_info(self.BASE_URL, self.service, self.layer_id)
         drawing_info = get_drawing_info(layer_info, self.service, self.layer_id)
         legend = []
@@ -98,22 +105,25 @@ class MapVisualization(base.DataSource):
             hex_color = rgb_to_hex(item["symbol"]["color"])
             legend.append({"color": hex_color, "label": item["label"]})
 
+        logger.info("Legend created successfully")
         return legend
 
     @staticmethod
     def get_esri_base_layer_dict(base_map_layer):
-        layer_dict = {}
-        layer_dict["type"] = "WebGLTile"
-        layer_dict["props"] = {
-            "source": {
-                "type": "ImageTile",
-                "props": {
-                    "url": f"{base_map_layer}/tile/" + "{z}/{y}/{x}",
-                    "attributions": f'Tiles © <a href="{base_map_layer}">ArcGIS</a>',
+        layer_dict = {
+            "type": "WebGLTile",
+            "props": {
+                "source": {
+                    "type": "ImageTile",
+                    "props": {
+                        "url": f"{base_map_layer}/tile/" + "{z}/{y}/{x}",
+                        "attributions": f'Tiles © <a href="{base_map_layer}">ArcGIS</a>',
+                    },
                 },
+                "name": f'{base_map_layer.split("/")[-2].replace("_"," ").title()}',
             },
-            "name": f'{base_map_layer.split("/")[-2].replace("_"," ").title()}',
         }
+        logger.info("Base layer dictionary created")
         return layer_dict
 
     @staticmethod
@@ -124,6 +134,7 @@ class MapVisualization(base.DataSource):
             "center": [x, y],
             "zoom": zoom,
         }
+        logger.info("View configuration created")
         return view_config
 
     @staticmethod
@@ -132,30 +143,13 @@ class MapVisualization(base.DataSource):
             "className": "ol-map",
             "style": {"width": "100%", "height": "100%"},
         }
+        logger.info("Map configuration created")
         return map_config
-
-    @staticmethod
-    def get_esri_base_layers_dict(base_map_layers):
-        base_map_layers = []
-        for layer in base_map_layers:
-            layer_dict = {}
-            layer_dict["type"] = "WebGLTile"
-            layer_dict["prop"] = {
-                "source": {
-                    "type": "ImageTile",
-                    "props": {
-                        "url": f"{layer}/tile/" + "{z}/{y}/{x}",
-                        "attributions": f'Tiles © <a href="{layer}">ArcGIS</a>',
-                    },
-                }
-            }
-            base_map_layers.append(layer_dict)
-
-        return base_map_layers
 
     def get_wbd_layer(self):
         layer_id = int(len(str(self.huc_id)) / 2)
         huc_level = f"huc{len(str(self.huc_id))}"
+        logger.info(f"Creating WBD layer with HUC ID {self.huc_id}")
         return {
             "type": "ImageLayer",
             "props": {

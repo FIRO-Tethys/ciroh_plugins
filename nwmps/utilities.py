@@ -1,5 +1,10 @@
 import requests
 import httpx
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 DATA_SERVICES = {
     "riv_gauges": {
@@ -561,7 +566,7 @@ def get_layer_info(base_url, service, layer_id):
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
-        print(f"Error fetching layer info: {e}")
+        logger.error(f"Error fetching layer info: {e}")
         return {}
 
 
@@ -573,13 +578,15 @@ def get_metadata_from_api(api_url, id, type_feature):
                 timeout=None,
             )
             if r.status_code != 200:
-                print(f"Error: {r.status_code}")
+                logger.error(f"Error: {r.status_code}")
                 return None
             else:
                 return r.json()
     except httpx.HTTPError as exc:
-        print(f"Error while requesting {exc.request.url!r}.")
-        print(str(exc.__class__.__name__))
+        logger.error(
+            f"Error while requesting {exc.request.url!r}: {str(exc.__class__.__name__)}"
+        )
         return None
-    except Exception:
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
         return None

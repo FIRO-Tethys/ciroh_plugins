@@ -1,8 +1,12 @@
 from intake.source import base
-import requests
 import httpx
 import asyncio
 from .utilities import get_metadata_from_api
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class NWMPSReachesSeries(base.DataSource):
@@ -49,44 +53,32 @@ class NWMPSReachesSeries(base.DataSource):
     def create_plotly_data(self):
         """
         Process the data object to create a list of traces for Plotly.js.
-
-        Parameters:
-        - data_object (dict): The input data containing time series information.
-
-        Returns:
-        - list: A list of trace dictionaries suitable for Plotly.js.
         """
         traces = []
-        # Iterate over forecast products
         for product_name, product in self.reach_data.items():
             if product_name == "reach":
-                continue  # Skip the 'reach' key as it doesn't contain time series data
+                continue
 
-            # Check if product is None or not a dictionary
             if product is None or not isinstance(product, dict):
-                print(
-                    f"Warning: The product '{product_name}' is None or not a dictionary. Skipping."
+                logger.warning(
+                    f"The product '{product_name}' is None or not a dictionary. Skipping."
                 )
-                continue  # Skip to the next product
+                continue
 
-            # Iterate over simulations within each product
             for simulation_name, simulation in product.items():
-                # Check if simulation is None or not a dictionary
                 if simulation is None or not isinstance(simulation, dict):
-                    print(
-                        f"Warning: The simulation '{simulation_name}' in product '{product_name}' is None or not a dictionary. Skipping."
+                    logger.warning(
+                        f"The simulation '{simulation_name}' in product '{product_name}' is None or not a dictionary. Skipping."
                     )
-                    continue  # Skip to the next simulation
+                    continue
 
-                # Extract data points
                 data_points = simulation.get("data", [])
                 if not data_points:
-                    print(
-                        f"Warning: No data points found for simulation '{simulation_name}' in product '{product_name}'. Skipping."
+                    logger.warning(
+                        f"No data points found for simulation '{simulation_name}' in product '{product_name}'. Skipping."
                     )
-                    continue  # Skip if no data points are available
+                    continue
 
-                # Extract 'validTime' and 'flow' for each data point
                 x = [
                     point.get("validTime")
                     for point in data_points
@@ -94,14 +86,12 @@ class NWMPSReachesSeries(base.DataSource):
                 ]
                 y = [point.get("flow") for point in data_points if "flow" in point]
 
-                # Check if x and y have data
                 if not x or not y:
-                    print(
-                        f"Warning: Missing 'validTime' or 'flow' in data points for simulation '{simulation_name}' in product '{product_name}'. Skipping."
+                    logger.warning(
+                        f"Missing 'validTime' or 'flow' in data points for simulation '{simulation_name}' in product '{product_name}'. Skipping."
                     )
-                    continue  # Skip if data is incomplete
+                    continue
 
-                # Create a trace for this simulation
                 trace = {
                     "x": x,
                     "y": y,
@@ -110,7 +100,6 @@ class NWMPSReachesSeries(base.DataSource):
                     "name": f"{product_name} {simulation_name}",
                     "line": {"width": 2},
                 }
-
                 traces.append(trace)
 
         return traces
@@ -118,33 +107,22 @@ class NWMPSReachesSeries(base.DataSource):
     def create_plotly_layout(self, yaxis_title="Flow"):
         """
         Create a layout dictionary for Plotly.js based on the data object.
-
-        Parameters:
-        - data_object (dict): The input data containing time series information.
-        - title (str): The title of the plot.
-        - yaxis_title (str): The label for the y-axis.
-        - xaxis_title (str): The label for the x-axis.
-
-        Returns:
-        - dict: A layout dictionary suitable for Plotly.js.
         """
-        # Extract units from the data_object if available
         units = None
         for product_name, product in self.reach_data.items():
             if product_name == "reach":
-                continue  # Skip the 'reach' key
+                continue
 
             if product is None or not isinstance(product, dict):
-                continue  # Skip to the next product
+                continue
 
             for simulation_name, simulation in product.items():
                 units = simulation.get("units")
                 if units:
-                    break  # Use the first available units
+                    break
             if units:
                 break
 
-        # Set y-axis title with units if available
         if units:
             yaxis_title_with_units = f"{yaxis_title} ({units})"
         else:
@@ -152,23 +130,18 @@ class NWMPSReachesSeries(base.DataSource):
 
         layout = {
             "title": "<b>Reach</b>: {} <br><sub>ID:{} </sub>".format(
-                (
-                    self.metadata.get("name", "Unknown")
-                    if self.metadata.get("name", "Unknown") != ""
-                    else "Unknown"
-                ),
-                self.id,
+                self.metadata.get("name", "Unknown"), self.id
             ),
             "xaxis": {
-                "type": "date",  # Ensures the x-axis is treated as dates
-                "tickformat": "%Y-%m-%d\n%H:%M",  # Format for date ticks
+                "type": "date",
+                "tickformat": "%Y-%m-%d\n%H:%M",
             },
             "yaxis": {
                 "title": {"text": yaxis_title_with_units},
-                "rangemode": "tozero",  # Ensures y-axis starts at zero
+                "rangemode": "tozero",
             },
             "legend": {
-                "orientation": "h",  # Horizontal legend at the bottom
+                "orientation": "h",
                 "x": 0,
                 "y": -0.2,
             },
@@ -178,11 +151,9 @@ class NWMPSReachesSeries(base.DataSource):
                 "t": 80,
                 "b": 80,
             },
-            "hovermode": "x unified",  # Shows hover text for all traces at once
+            "hovermode": "x unified",
         }
 
-        # + "<br>"
-        # + {"text": f"id: {self.id}"},
         return layout
 
     async def reach_api_call(self, product):
@@ -193,11 +164,11 @@ class NWMPSReachesSeries(base.DataSource):
                     params={"series": product},
                     timeout=None,
                 )
-                print(f"Request URL: {product}", response.status_code)
+                logger.info(f"Request URL: {product} {response.status_code}")
 
                 if response.status_code != 200:
-                    print(f"Error: {response.status_code}")
-                    print(response.text)
+                    logger.error(f"Error: {response.status_code}")
+                    logger.error(response.text)
                     return None
                 else:
                     self.reach_data[product] = response.json().get(
@@ -205,7 +176,7 @@ class NWMPSReachesSeries(base.DataSource):
                     )
                     return response.json()
         except Exception as e:
-            print(e)
+            logger.error(e)
             return None
 
     async def make_reach_api_calls(self, products):
@@ -219,9 +190,8 @@ class NWMPSReachesSeries(base.DataSource):
     def getData(self):
         try:
             products = self.reach_data.keys()
-            # Run the coroutine using the event loop
             results = self.loop.run_until_complete(self.make_reach_api_calls(products))
             return results
         except Exception as e:
-            print(e)
+            logger.error(e)
             return None

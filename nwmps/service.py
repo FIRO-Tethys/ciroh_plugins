@@ -14,6 +14,11 @@ from .utilities import (
     rgb_to_hex,
 )
 import numpy as np
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class NWMPService(base.DataSource):
@@ -51,10 +56,10 @@ class NWMPService(base.DataSource):
         """
         Read data from NWMP service and return a dictionary with title, data, and description.
         """
-        print("Reading data from NWMP service")
-        print(f"Service: {self.BASE_URL}/{self.service}/MapServer")
-        print(f"Layer ID: {self.layer_id}")
-        print(f"HUC IDs: {self.huc_id}")
+        logger.info("Reading data from NWMP service")
+        logger.info(f"Service: {self.BASE_URL}/{self.service}/MapServer")
+        logger.info(f"Layer ID: {self.layer_id}")
+        logger.info(f"HUC IDs: {self.huc_id}")
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
         self.title = self.make_title()
         geometry = self.get_huc_boundary()
@@ -85,7 +90,7 @@ class NWMPService(base.DataSource):
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            print(f"Error fetching service info: {e}")
+            logger.error(f"Error fetching service info: {e}")
             return {}
 
     @staticmethod
@@ -100,10 +105,7 @@ class NWMPService(base.DataSource):
                 return layer.get("drawingInfoValueAttr")
         return None
 
-    # Define a function to get the label and color based on recur_cat
     def get_label_and_color_for_value(self, filter_attr, symbol_dict):
-        # breakpoint()
-
         match = symbol_dict.get(filter_attr, None)
         if match:
             return match["label"], match["symbol"]["color"]
@@ -126,7 +128,6 @@ class NWMPService(base.DataSource):
                 lambda x: self.get_label_and_color_for_value(str(x), symbol_dict)
             )
         )
-
         df["hex"] = df["color"].apply(lambda x: rgb_to_hex(x))
         return df
 
@@ -140,63 +141,32 @@ class NWMPService(base.DataSource):
     ):
         """
         Assign labels and colors to a DataFrame based on a value column and a symbol list.
-
-        Parameters:
-        - df: pandas.DataFrame
-            The DataFrame containing the values to categorize.
-        - value_column: str
-            The name of the column in df containing the values to categorize.
-        - symbol_list: list of dicts
-            The list of symbols containing classMaxValue, label, and color information.
-        - label_column: str, optional (default='label')
-            The name of the column to be created for labels.
-        - color_column: str, optional (default='color')
-            The name of the column to be created for colors.
-        - hex_color_column: str, optional (default='color_hex')
-            The name of the column to be created for hex color codes.
-
-        Returns:
-        - df: pandas.DataFrame
-            The DataFrame with new columns added for labels and colors.
         """
-        # breakpoint()
-        # Step 1: Extract bins, labels, and colors from the symbol_list
         bins = [0] + [item["classMaxValue"] for item in symbol_list[:-1]] + [np.inf]
         labels = [item["label"] for item in symbol_list]
         colors = [item["symbol"]["color"] for item in symbol_list]
 
-        # Create a mapping from labels to colors
         label_to_color = dict(zip(labels, colors))
-
-        # Ensure that the value_column is numeric
         df[value_column] = pd.to_numeric(df[value_column], errors="coerce")
 
-        # Step 2: Use pandas.cut to assign labels based on bins
         df[label_column] = pd.cut(
             df[value_column], bins=bins, labels=labels, right=True, include_lowest=True
         )
 
-        # Step 3: Map the labels to colors to create the color column
         label_to_color_hex = {
             label: self.rgb_to_hex(color) for label, color in label_to_color.items()
         }
         df[color_column] = df[label_column].map(label_to_color_hex)
-        # breakpoint()
         return df
 
     def add_symbols(self, df):
         """Add symbols to the DataFrame."""
-        # breakpoint()
         filter_attr = self.get_color_attribute()
-        # breakpoint()
         symbols = get_drawing_info(self.layer_info, self.service, self.layer_id)
-        # print(symbols)
         if not symbols:
-            print("No drawing symbols found.")
+            logger.warning("No drawing symbols found.")
             return df
-        # print(df)
         df = self.add_symbols_info(df, symbols, filter_attr)
-
         return df
 
     def get_color_attribute(self):
@@ -208,25 +178,22 @@ class NWMPService(base.DataSource):
         )
         attr_name = layer_info.get("filter_attr")
         if not attr_name:
-            print(f"No filter attribute found for layer ID {self.layer_id}")
+            logger.warning(f"No filter attribute found for layer ID {self.layer_id}")
         return attr_name
 
     def get_huc_boundary(self):
         """
         Retrieve the watershed boundary geometry for a given HUC code.
-
-        Returns:
-            shapely.geometry: The geometry of the HUC boundary, or None if not found.
         """
         wbd = WBD(self.huc_level)
         try:
             gdf = wbd.byids(self.huc_level, self.huc_id)
             return gdf.iloc[0]["geometry"]
         except ZeroMatchedError:
-            print(f"No HUC boundary found for HUC ID {self.huc_id}")
+            logger.warning(f"No HUC boundary found for HUC ID {self.huc_id}")
             return None
         except Exception as e:
-            print(f"Error fetching HUC boundary: {e}")
+            logger.error(f"Error fetching HUC boundary: {e}")
             return None
 
     def get_river_features(self, url, geometry):
@@ -236,8 +203,6 @@ class NWMPService(base.DataSource):
         geometries = (
             geometry.geoms if isinstance(geometry, MultiPolygon) else [geometry]
         )
-        # Optionally, remove debug prints or breakpoint in production
-        # breakpoint()
         for geom in geometries:
             try:
                 oids = hr.oids_bygeom(geom, spatial_relation="esriSpatialRelContains")
@@ -246,23 +211,24 @@ class NWMPService(base.DataSource):
                     df_temp = geoutils.json2geodf(resp)
                     dfs.append(df_temp)
                 else:
-                    print("No OIDs found for the geometry.")
+                    logger.warning("No OIDs found for the geometry.")
             except ZeroMatchedError:
-                print("ZeroMatchedError: No features found within the given geometry.")
-                continue  # Skip to the next geometry
+                logger.warning(
+                    "ZeroMatchedError: No features found within the given geometry."
+                )
+                continue
             except Exception as e:
-                print(f"Error fetching features for a geometry: {e}")
-                continue  # Optionally continue or handle differently
+                logger.error(f"Error fetching features for a geometry: {e}")
+                continue
         if dfs:
             df = pd.concat(dfs, ignore_index=True)
             return df
         else:
-            print("No river features found in any of the geometries.")
+            logger.warning("No river features found in any of the geometries.")
             return pd.DataFrame()
 
     def get_statistics(self, df):
         """Compute statistics from the DataFrame."""
-
         grouped = df.groupby(by=["label", "hex"], as_index=False).size()
         grouped = grouped[grouped["size"] > 0].reset_index(drop=True)  # tmp fix
         stats = grouped.to_dict("records")
