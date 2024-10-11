@@ -1,5 +1,6 @@
 from intake.source import base
 import httpx
+from .utilities import get_metadata_from_api
 
 # import datetime
 import pandas as pd
@@ -26,7 +27,7 @@ class NWMPSGaugesSeries(base.DataSource):
 
     def read(self):
         self.data = self.get_gauge_data()
-        self.metadata = self.get_gauge_metadata()
+        self.metadata = get_metadata_from_api(self.api_base_url, self.id, "gauges")
         traces = self.create_traces()
         # Generate flood event shapes and annotations
         flood_data = self.metadata.get("flood", {})
@@ -41,26 +42,6 @@ class NWMPSGaugesSeries(base.DataSource):
             with httpx.Client(verify=False) as client:
                 r = client.get(
                     url=f"{self.api_base_url}/gauges/{self.id}/stageflow",
-                    timeout=None,
-                )
-                if r.status_code != 200:
-                    print(f"Error: {r.status_code}")
-                    print(r.text)
-                    return None
-                else:
-                    return r.json()
-        except httpx.HTTPError as exc:
-            print(f"Error while requesting {exc.request.url!r}.")
-            print(str(exc.__class__.__name__))
-            return None
-        except Exception:
-            return None
-
-    def get_gauge_metadata(self):
-        try:
-            with httpx.Client(verify=False) as client:
-                r = client.get(
-                    url=f"{self.api_base_url}/gauges/{self.id}",
                     timeout=None,
                 )
                 if r.status_code != 200:

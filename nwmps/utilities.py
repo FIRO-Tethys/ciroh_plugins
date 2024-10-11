@@ -1,5 +1,5 @@
 import requests
-
+import httpx
 
 DATA_SERVICES = {
     "riv_gauges": {
@@ -563,3 +563,23 @@ def get_layer_info(base_url, service, layer_id):
     except requests.RequestException as e:
         print(f"Error fetching layer info: {e}")
         return {}
+
+
+def get_metadata_from_api(api_url, id, type_feature):
+    try:
+        with httpx.Client(verify=False) as client:
+            r = client.get(
+                url=f"{api_url}/{type_feature}/{id}",
+                timeout=None,
+            )
+            if r.status_code != 200:
+                print(f"Error: {r.status_code}")
+                return None
+            else:
+                return r.json()
+    except httpx.HTTPError as exc:
+        print(f"Error while requesting {exc.request.url!r}.")
+        print(str(exc.__class__.__name__))
+        return None
+    except Exception:
+        return None

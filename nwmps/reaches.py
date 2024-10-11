@@ -2,9 +2,9 @@ from intake.source import base
 import requests
 import httpx
 import asyncio
+from .utilities import get_metadata_from_api
 
 
-# This will be used for the TimeSeries of the NWM data
 class NWMPSReachesSeries(base.DataSource):
     container = "python"
     version = "0.0.1"
@@ -39,22 +39,12 @@ class NWMPSReachesSeries(base.DataSource):
         super(NWMPSReachesSeries, self).__init__(metadata=metadata)
 
     def read(self):
-        if self.get_metadata():
+        self.metadata = get_metadata_from_api(self.api_base_url, self.id, "reaches")
+        if self.metadata is not None:
             self.getData()
         traces = self.create_plotly_data()
         layout = self.create_plotly_layout()
-        # needs to make  plotly chart placeholder for it
         return {"data": traces, "layout": layout}
-
-    def get_metadata(self):
-        service_url = f"{self.api_base_url}/reaches/{self.id}"
-        rr = requests.get(service_url)
-        if rr.status_code != 200:
-            print("Invalid Reach ID")
-            return False
-        else:
-            self.metadata = rr.json()
-            return True
 
     def create_plotly_data(self):
         """
