@@ -25,7 +25,6 @@ class NWMPService(base.DataSource):
     visualization_group = "NWMP"
     visualization_label = "NWMP Data Service"
     visualization_type = "card"
-    # BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
 
     def __init__(self, service_and_layer_id, huc_id, metadata=None):
         """
