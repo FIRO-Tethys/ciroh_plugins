@@ -31,12 +31,14 @@ class MapVisualization(base.DataSource):
         self, latitude, longitude, zoom, base_map_layer, services, huc_id, metadata=None
     ):
         # store important kwargs
-        self.BASE_URL = "https://maps.water.noaa.gov/server/rest/services/nwm"
+
         self.center = [longitude, latitude]
         self.zoom = zoom
         self.huc_id = huc_id
-        self.service = services.split("-")[0]
-        self.layer_id = services.split("-")[1]
+        parts = services.split("/")
+        self.service = parts[-3]
+        self.layer_id = int(parts[-1])
+        self.BASE_URL = "/".join(parts[:-3])
         self.base_map_layer = self.get_esri_base_layer_dict(base_map_layer)
         self.service_layer = self.get_service_layer_dict()
         self.view = self.get_view_config(center=self.center, zoom=self.zoom)

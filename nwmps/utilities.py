@@ -63,7 +63,8 @@ def get_services_dropdown():
             "options": [
                 {
                     "label": layer["name"],
-                    "value": f'{service_key}-{layer["id"]}',
+                    "value": f"{service['url']}/{service_key}/MapServer/{layer['id']}",
+                    # "value": f'{service_key}-{layer["id"]}',
                 }
                 for layer in service["layers"]
             ],
@@ -72,9 +73,128 @@ def get_services_dropdown():
     ]
 
 
+#
+# River Stages 240 hour Forecast (10)
+#
+#
+#
+#
+#
 DATA_SERVICES = {
+    "riv_gauges": {
+        "name": " National Water Prediction Service (NWPS) River Gauge System",
+        "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water",
+        "layers": [
+            {
+                "name": "Observed River Stages (0)",
+                "filter_attr": "status",
+                "id": 0,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 24 hour Forecast (1)",
+                "filter_attr": "status",
+                "id": 1,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 48 hour Forecast (2)",
+                "filter_attr": "status",
+                "id": 2,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 72 hour Forecast (3)",
+                "filter_attr": "status",
+                "id": 3,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 96 hour Forecast (4)",
+                "filter_attr": "status",
+                "id": 4,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 120 hour Forecast (5)",
+                "filter_attr": "status",
+                "id": 5,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 144 hour Forecast (6)",
+                "filter_attr": "status",
+                "id": 6,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 168 hour Forecast (7)",
+                "filter_attr": "status",
+                "id": 7,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 216 hour Forecast (9)",
+                "filter_attr": "status",
+                "id": 9,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 240 hour Forecast (10)",
+                "filter_attr": "status",
+                "id": 10,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 264 hour Forecast (11)",
+                "filter_attr": "status",
+                "id": 11,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 288 hour Forecast (12)",
+                "filter_attr": "status",
+                "id": 12,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 312 hour Forecast (13)",
+                "filter_attr": "status",
+                "id": 13,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "River Stages 336 hour Forecast (14)",
+                "filter_attr": "status",
+                "id": 14,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+            {
+                "name": "Full Forecast Period Stages (15)",
+                "filter_attr": "status",
+                "id": 15,
+                "drawingInfoAttr": "uniqueValueInfos",
+                "drawingInfoValueAttr": "value",
+            },
+        ],
+    },
     "ana_high_flow_magnitude": {
         "name": "National Water Model (NWM) High Flow Magnitude Analysis",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "Est. Annual Exceedance Probability (0)",
@@ -87,6 +207,7 @@ DATA_SERVICES = {
     },
     "ana_past_14day_max_high_flow_magnitude": {
         "name": "National Water Model (NWM) Past 14-Day Max High Flow Magnitude Analysis",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "Past 7 Days - Est. Annual Exceedance Probability (0)",
@@ -106,6 +227,7 @@ DATA_SERVICES = {
     },
     "srf_18hr_high_water_arrival_time": {
         "name": "National Water Model (NWM) 18 / 48-Hour High Water Arrival Time Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "18 Hours - High Water Arrival Time (0)",
@@ -125,6 +247,7 @@ DATA_SERVICES = {
     },
     "srf_18hr_rapid_onset_flooding": {
         "name": "National Water Model (NWM) 18-Hour Rapid Onset Flooding Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "18 Hours - Rapid Onset Flood Arrival Time (0)",
@@ -140,18 +263,19 @@ DATA_SERVICES = {
                 "drawingInfoAttr": "uniqueValueInfos",
                 "drawingInfoValueAttr": "value",
             },
-            # {
-            #     "name": "18 Hours - NWM Waterway Length Flooded (2)",
-            #     "filter_attr": "nwm_waterway_length_flooded_percent",
-            #     "id": 2,
-            #     "drawingInfoAttr": "uniqueValueInfos",
-            #     "drawingInfoValueAttr": "value",
-            # },
+            {
+                "name": "18 Hours - NWM Waterway Length Flooded (2)",
+                "filter_attr": "nwm_waterway_length_flooded_percent",
+                "id": 2,
+                "drawingInfoAttr": "classBreakInfos",
+                "drawingInfoValueAttr": "classMaxValue",
+            },
         ],
         #
     },
     "srf_12hr_rapid_onset_flooding_probability": {
         "name": "National Water Model (NWM) 12-Hour Rapid Onset Flooding Probability Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "Hours 1-6 - Rapid Onset Flooding Probability (0)",
@@ -174,15 +298,18 @@ DATA_SERVICES = {
                 "drawingInfoAttr": "classBreakInfos",
                 "drawingInfoValueAttr": "classMaxValue",
             },
-            # {
-            #     "name": "Hours 1-12 - Hotspots - Average Rapid Onset Flooding Probability (3)",
-            #     "filter_attr": "weighted_mean",
-            #     "id": 3,
-            # },
+            {
+                "name": "Hours 1-12 - Hotspots - Average Rapid Onset Flooding Probability (3)",
+                "filter_attr": "weighted_mean",
+                "id": 3,
+                "drawingInfoAttr": "classBreakInfos",
+                "drawingInfoValueAttr": "classMaxValue",
+            },
         ],
     },
     "srf_12hr_max_high_water_probability": {
         "name": "National Water Model (NWM) 12-Hour Max High Water Probability Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "12 Hours - High Water Probability (0)",
@@ -191,15 +318,18 @@ DATA_SERVICES = {
                 "drawingInfoAttr": "classBreakInfos",
                 "drawingInfoValueAttr": "classMaxValue",
             },
-            # {
-            #     "name": "12 Hours - Hotspots - Average High Water Probability (1)",
-            #     "filter_attr": "avg_prob",
-            #     "id": 1,
-            # },
+            {
+                "name": "12 Hours - Hotspots - Average High Water Probability (1)",
+                "filter_attr": "avg_prob",
+                "id": 1,
+                "drawingInfoAttr": "classBreakInfos",
+                "drawingInfoValueAttr": "classMaxValue",
+            },
         ],
     },
     "srf_18hr_max_high_flow_magnitude": {
-        "name": "National Water Model (NWM) 18 / 48-Hour Max High Flow Magnitude Forecast	",
+        "name": "National Water Model (NWM) 18 / 48-Hour Max High Flow Magnitude Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "18 Hours - Est. Annual Exceedance Probability (0)",
@@ -212,6 +342,7 @@ DATA_SERVICES = {
     },
     "mrf_gfs_10day_high_water_arrival_time": {
         "name": "National Water Model(NWM) GFS 10-Day High Water Arrival Time Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "3 Days - High Water Arrival Time (0)",
@@ -238,6 +369,7 @@ DATA_SERVICES = {
     },
     "mrf_gfs_5day_max_high_water_probability": {
         "name": "National Water Model (NWM) GFS 5-Day High Water Probability Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "Day 1 - High Water Probability (0)",
@@ -274,15 +406,18 @@ DATA_SERVICES = {
                 "drawingInfoAttr": "classBreakInfos",
                 "drawingInfoValueAttr": "classMaxValue",
             },
-            # {
-            #     "name": "Days 1-5 - Hotspots - Average High Water Probability (5)",
-            #     "filter_attr": "avg_prob",
-            #     "id": 5,
-            # },
+            {
+                "name": "Days 1-5 - Hotspots - Average High Water Probability (5)",
+                "filter_attr": "avg_prob",
+                "id": 5,
+                "drawingInfoAttr": "classBreakInfos",
+                "drawingInfoValueAttr": "classMaxValue",
+            },
         ],
     },
     "mrf_gfs_10day_max_high_flow_magnitude": {
         "name": "National Water Model (NWM) GFS 10-Day Max High Flow Magnitude Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "3 Days - Est. Annual Exceedance Probability (0)",
@@ -309,6 +444,7 @@ DATA_SERVICES = {
     },
     "mrf_gfs_10day_rapid_onset_flooding": {
         "name": "National Water Model (NWM) GFS 10-Day Rapid Onset Flooding Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "10 Day - Rapid Onset Flood Arrival Time (0)",
@@ -335,6 +471,7 @@ DATA_SERVICES = {
     },
     "mrf_gfs_5day_rapid_onset_flooding_probability": {
         "name": "National Water Model (NWM) GFS 5-Day Rapid Onset Flooding Probability Forecast",
+        "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
                 "name": "Day 1 - Rapid Onset Flooding Probability (0)",
@@ -389,6 +526,22 @@ def get_service_layers():
             obj = {"label": layer["name"], "value": f"{layer['id']}"}
             layers.append(obj)
     return layers
+
+    # {
+    #   type: "ImageLayer",
+    #   props: {
+    #     source:{
+    #       type: "ImageArcGISRest",
+    #       props:{
+    #         url: 'https://mapservices.weather.noaa.gov/eventdriven/rest/services/water/riv_gauges/MapServer',
+    #         params: {
+    #           LAYERS: "show:0",
+    #           layerDefs: JSON.stringify({ "0": "status = 'action' or status='minor' or status='moderate' or status='major'" })
+    #         }
+    #       }
+    #     }
+    #   }
+    # },
 
 
 # SOMETHIGS THAT WE MIGHT NEED LATER ON
