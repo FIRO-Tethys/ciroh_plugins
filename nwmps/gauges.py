@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 # This will be used for the TimeSeries of the NWM data
 class NWMPSGaugesSeries(base.DataSource):
     container = "python"
-    version = "0.0.1"
-    name = "nwmp_api"
+    version = "0.0.2"
+    name = "nwmp_api_gauges"
     visualization_args = {"id": "text"}
     visualization_group = "NWMP"
     visualization_label = "NWMP Gauges Time Series"
