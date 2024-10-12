@@ -490,10 +490,6 @@ def get_base_map_layers_dropdown():
                     "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
                 },
                 {
-                    "label": "World Transportation",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Transportation/MapServer",
-                },
-                {
                     "label": "World Hillshade Dark",
                     "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade_Dark/MapServer",
                 },
@@ -501,6 +497,30 @@ def get_base_map_layers_dropdown():
                     "label": "World Hillshade",
                     "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
                 },
+                {
+                    "label": "World Boundaries and Places Alternate",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places_Alternate/MapServer",
+                },
+                {
+                    "label": "World Boundaries and Places",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places/MapServer",
+                },
+                {
+                    "label": "World Reference Overlay",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Reference_Overlay/MapServer",
+                },
+                {
+                    "label": "World Transportation",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer",
+                },
+                {
+                    "label": "World Ocean Base ",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer",
+                },
+                {
+                    "label": "World Ocean Reference",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer",
+                }
             ],
         }
     ]
