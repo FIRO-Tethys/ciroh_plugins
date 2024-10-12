@@ -4,7 +4,6 @@ from shapely.geometry import MultiPolygon
 from pygeoogc import ArcGISRESTful
 import pygeoutils as geoutils
 from pygeoogc.exceptions import ZeroMatchedError
-from pygeohydro import WBD
 from intake.source import base
 from .utilities import (
     get_services_dropdown,
@@ -12,6 +11,7 @@ from .utilities import (
     get_layer_info,
     get_drawing_info,
     rgb_to_hex,
+    get_huc_boundary,
 )
 import numpy as np
 import logging
@@ -62,7 +62,7 @@ class NWMPService(base.DataSource):
         logger.info(f"HUC IDs: {self.huc_id}")
         service_url = f"{self.BASE_URL}/{self.service}/MapServer"
         self.title = self.make_title()
-        geometry = self.get_huc_boundary()
+        geometry = get_huc_boundary(self.huc_level, self.huc_id)
         if geometry is None:
             df = pd.DataFrame()
         else:
@@ -180,21 +180,6 @@ class NWMPService(base.DataSource):
         if not attr_name:
             logger.warning(f"No filter attribute found for layer ID {self.layer_id}")
         return attr_name
-
-    def get_huc_boundary(self):
-        """
-        Retrieve the watershed boundary geometry for a given HUC code.
-        """
-        wbd = WBD(self.huc_level)
-        try:
-            gdf = wbd.byids(self.huc_level, self.huc_id)
-            return gdf.iloc[0]["geometry"]
-        except ZeroMatchedError:
-            logger.warning(f"No HUC boundary found for HUC ID {self.huc_id}")
-            return None
-        except Exception as e:
-            logger.error(f"Error fetching HUC boundary: {e}")
-            return None
 
     def get_river_features(self, url, geometry):
         """Fetch river features from the service within the given geometry."""

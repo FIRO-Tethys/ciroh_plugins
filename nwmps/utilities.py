@@ -1,6 +1,8 @@
 import requests
 import httpx
 import logging
+from pygeoogc.exceptions import ZeroMatchedError
+from pygeohydro import WBD
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -590,3 +592,26 @@ def get_metadata_from_api(api_url, id, type_feature):
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return None
+
+
+def get_huc_boundary(huc_level, huc_id):
+    """
+    Retrieve the watershed boundary geometry for a given HUC code.
+    """
+    wbd = WBD(huc_level)
+    try:
+        gdf = wbd.byids(huc_level, huc_id)
+        return gdf.iloc[0]["geometry"]
+    except ZeroMatchedError:
+        logger.warning(f"No HUC boundary found for HUC ID {huc_id}")
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching HUC boundary: {e}")
+        return None
+
+
+def get_centroid_huc(huc_id):
+    huc_level = f"huc{len(str(huc_id))}"
+    geom = get_huc_boundary(huc_level, huc_id)
+    centroid = geom.centroid
+    return [centroid.x, centroid.y]
