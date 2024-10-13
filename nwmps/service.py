@@ -154,7 +154,7 @@ class NWMPService(base.DataSource):
         )
 
         label_to_color_hex = {
-            label: self.rgb_to_hex(color) for label, color in label_to_color.items()
+            label: rgb_to_hex(color) for label, color in label_to_color.items()
         }
         df[color_column] = df[label_column].map(label_to_color_hex)
         return df
