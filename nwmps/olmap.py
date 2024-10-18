@@ -140,7 +140,7 @@ class MapVisualization(base.DataSource):
     def get_map_config():
         map_config = {
             "className": "ol-map",
-            "style": {"width": "100%", "height": "100%"},
+            "style": {"width": "100%", "height": "100%", "position": "relative"},
         }
         logger.info("Map configuration created")
         return map_config
