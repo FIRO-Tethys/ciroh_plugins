@@ -27,7 +27,7 @@ class NWMPService(base.DataSource):
     """
 
     container = "python"
-    version = "0.0.3"
+    version = "0.0.4"
     name = "nwmp_data_service"
     visualization_args = {
         "huc_id": "text",

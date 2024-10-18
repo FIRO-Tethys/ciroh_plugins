@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class NWMPSReachesSeries(base.DataSource):
     container = "python"
-    version = "0.0.3"
+    version = "0.0.4"
     name = "nwmp_api_reaches"
     visualization_args = {
         "id": "text",
