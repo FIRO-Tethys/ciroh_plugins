@@ -31,9 +31,13 @@ class MapVisualization(base.DataSource):
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Map"
-    visualization_type = "map"
+    visualization_type = "custom"
 
     def __init__(self, base_map_layer, zoom, services, huc_id, metadata=None):
+        self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
+        # self.mfe_unpkg_url = "https://unpkg.com/mfe-ol@0.1.1/dist/remoteEntry.js"
+        self.mfe_scope = "mfe_ol"
+        self.mfe_module = "./Map"
         self.zoom = zoom
         self.huc_id = huc_id
         parts = services.split("/")
@@ -54,10 +58,15 @@ class MapVisualization(base.DataSource):
         logger.info("Reading map data configuration")
         layers = [self.base_map_layer, self.HUC_LAYER, self.service_layer]
         return {
-            "layers": layers,
-            "view_config": self.view,
-            "map_config": self.map_config,
-            "legend": self.legend,
+            "url": self.mfe_unpkg_url,
+            "scope": self.mfe_scope,
+            "module": self.mfe_module,
+            "props": {
+                "layers": layers,
+                "viewConfig": self.view,
+                "mapConfig": self.map_config,
+                "legend": self.legend,
+            },
         }
 
     def get_service_layers(self):
