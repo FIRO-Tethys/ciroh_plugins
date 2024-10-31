@@ -34,8 +34,8 @@ class MapVisualization(base.DataSource):
     visualization_type = "custom"
 
     def __init__(self, base_map_layer, zoom, services, huc_id, metadata=None):
-        self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
-        # self.mfe_unpkg_url = "https://unpkg.com/mfe-ol@0.1.1/dist/remoteEntry.js"
+        # self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
+        self.mfe_unpkg_url = "https://unpkg.com/mfe-ol@latest/dist/remoteEntry.js"
         self.mfe_scope = "mfe_ol"
         self.mfe_module = "./Map"
         self.zoom = zoom
@@ -179,7 +179,7 @@ class MapVisualization(base.DataSource):
 
     def get_center(self):
         """Get the center of the HUC."""
-        center = [37.71859032558816, -98.71413513957045]
+        center = [-98.71413513957045, 37.71859032558816]
         try:
             center = get_centroid_huc(self.huc_id)
         except Exception as e:

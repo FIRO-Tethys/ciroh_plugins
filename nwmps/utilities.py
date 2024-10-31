@@ -520,7 +520,7 @@ def get_base_map_layers_dropdown():
                 {
                     "label": "World Ocean Reference",
                     "value": "https://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer",
-                }
+                },
             ],
         }
     ]
