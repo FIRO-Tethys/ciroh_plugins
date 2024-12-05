@@ -38,6 +38,8 @@ nwmp_data_service = "nwmps.service:NWMPService"
 nwmp_map = "nwmps.olmap:MapVisualization"
 nwmp_reaches_series = "nwmps.reaches:NWMPSReachesSeries"
 nwmp_gauges_series = "nwmps.gauges:NWMPSGaugesSeries"
+nwmp_drought_monitoring_table = "nwmps.drought_table:DroughtDataTable"
+nwmp_drought_monitoring_series = "nwmps.drought_plot:DroughtDataTimeSeries"
 
 [tool.setuptools]
 include-package-data = true
