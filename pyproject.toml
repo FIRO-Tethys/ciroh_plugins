@@ -40,6 +40,7 @@ nwmp_reaches_series = "nwmps.reaches:NWMPSReachesSeries"
 nwmp_gauges_series = "nwmps.gauges:NWMPSGaugesSeries"
 nwmp_drought_monitoring_table = "nwmps.drought_table:DroughtDataTable"
 nwmp_drought_monitoring_series = "nwmps.drought_plot:DroughtDataTimeSeries"
+nwmp_drought_monitoring_pie_chart = "nwmps.drought_pie:DroughtDataGraph"
 
 [tool.setuptools]
 include-package-data = true

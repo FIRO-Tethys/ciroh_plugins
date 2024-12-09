@@ -15,7 +15,7 @@ class DroughtDataTable(base.DataSource):
     version = "0.0.4"
     name = "nwmp_api_drought_table_data"
     visualization_args = {
-        "area_type": get_drought_area_type_dropdown()
+        "area_type": get_drought_area_type_dropdown(),
         "statistic_type": get_drought_statistic_type(),
         "data_type": get_drought_data_type()
     }
@@ -42,10 +42,9 @@ class DroughtDataTable(base.DataSource):
             "scope": self.mfe_scope,
             "module": self.mfe_module,
             "props": {
-                "layers": layers,
-                "viewConfig": self.view,
-                "mapConfig": self.map_config,
-                "legend": self.legend,
+                "data": table_data,
+                "columns": table_columns,
+
             },
         }
 
@@ -61,11 +60,12 @@ class DroughtDataTable(base.DataSource):
             client = httpx.Client(verify=False)
             params = {'area': f"'{self.area}'", 'statstype':f"'{self.statistic_type}'" , 'diff': f"'{self.data_type}'"}
             r = client.get(
-                url=f"{self.api_base_url}_{area_type}",
+                url=f"{self.api_base_url}_{self.area_type}",
                 timeout=None,
+                params=params
             )
             data = r.json()
-            return  data.get('d', []):
+            return data.get('d', [])
         except httpx.HTTPError as exc:
             logger.error(f"Error while requesting {exc.request.url!r}: {exc}")
             return []

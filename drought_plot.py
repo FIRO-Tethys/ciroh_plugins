@@ -1,6 +1,6 @@
 from intake.source import base
 import httpx
-from .utilities import get_drought_area_type_dropdown,get_drought_index
+from .utilities import get_drought_area_type_dropdown, get_drought_index
 from datetime import datetime
 import logging
 
@@ -15,7 +15,7 @@ class DroughtDataTimeSeries(base.DataSource):
     version = "0.0.4"
     name = "nwmp_api_drought_timeseries_data"
     visualization_args = {
-        "area_type": get_drought_area_type_dropdown()
+        "area_type": get_drought_area_type_dropdown(),
         "data_index": get_drought_index()    
     }
     visualization_group = "NWMP"
@@ -28,12 +28,12 @@ class DroughtDataTimeSeries(base.DataSource):
         self.area_type = area_type.split('-')[0]
         self.area = area_type.split('-')[1]
         self.data_index = data_index
-        self.statistic_type = 1,
+        self.statistic_type = 1
         super(DroughtDataTimeSeries, self).__init__(metadata=metadata)
 
     def read(self):
         data = self.get_data_time_series()
-        traces = self.create_usdm_traces(data) if self.data_index === 'usdm' else self.create_dsci_traces(data)
+        traces = self.create_usdm_traces(data) if self.data_index == 'usdm' else self.create_dsci_traces(data)
         layout = self.create_layout()
         return {"data": traces, "layout": layout}
 
@@ -44,11 +44,12 @@ class DroughtDataTimeSeries(base.DataSource):
             params = {
                 'area': f'"{self.area}"', 
                 'type':f'"{self.area_type}"' , 
-                'statstype': self.statistic_type"
+                'statstype': self.statistic_type
             }
             r = client.get(
-                url=f"{self.api_base_url}_{area_type}",
+                url=f"{self.api_base_url}_{self.area_type}",
                 timeout=None,
+                params=params
             )
             data = r.json()
             unparsed_timeseries = data.get('d', [])

@@ -699,7 +699,7 @@ def get_drought_area_type_dropdown(area_type):
             data = response.json()
             for item in data.get('d', []):
                 dropdown_item['options'].append({
-                    "value": f'{key-item.get("Value")}',
+                    "value": f'{key}-{item.get("Value")}',
                     "label": item.get("Text")
                 })
             dropdown_items.append(dropdown_item)
@@ -746,10 +746,23 @@ def get_drought_index():
     ]
 
 
-
-
-
-
+def get_drought_dates():
+    api_endpoint = 'https://droughtmonitor.unl.edu/Maps/CompareTwoWeeks.aspx/ReturnDates'
+    client = httpx.Client(verify=False)
+    response = client.get(f'{api_endpoint}', headers={"Content-Type": "application/json"})
+    data = response.json()
+    dropdown_items = []
+    dropdown_item ={
+        "label": "Drought Dates",
+        "options":[]
+    }
+    for item in data.get('d', []):
+        dropdown_item['options'].append({
+            "value": f'{item.value}',
+            "label": item.get("Text")
+        })
+    dropdown_items.append(dropdown_item)
+    return dropdown_items
 
 
 
