@@ -9,17 +9,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# This will be used for the TimeSeries of the NWM data
 class DroughtDataTimeSeries(base.DataSource):
     container = "python"
     version = "0.0.4"
-    name = "nwmp_api_drought_timeseries_data"
+    name = "drought_api_timeseries_data"
     visualization_args = {
         "area_type": get_drought_area_type_dropdown(),
         "data_index": get_drought_index()    
     }
-    visualization_group = "NWMP"
-    visualization_label = "NWMP Drought Data Time Series"
+    visualization_group = "Drought_Monitor"
+    visualization_label = "U.S. Drought Monitor Data Time Series"
     visualization_type = "plotly"
 
     def __init__(self, area_type,data_index,metadata=None):
