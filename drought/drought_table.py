@@ -35,24 +35,14 @@ class DroughtDataTable(base.DataSource):
 
     def read(self):
         table_data = self.get_data_table()
-        table_columns = self.get_table_columns(table_data)
         return {
             "url": self.mfe_unpkg_url,
             "scope": self.mfe_scope,
             "module": self.mfe_module,
             "props": {
                 "data": table_data,
-                "columns": table_columns,
-
             },
         }
-
-    
-    def get_table_columns(self,table_data):
-        columns = list(table_data[0].keys())
-        columns.remove('__type')
-        columns.remove('Label')
-        return columns
 
     def get_data_table(self):
         try:
