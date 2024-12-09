@@ -23,7 +23,8 @@ class DroughtDataTable(base.DataSource):
     visualization_type = "custom"
 
     def __init__(self, area_type,statistic_type,data_type,metadata=None):
-        self.mfe_unpkg_url = "https://unpkg.com/mfe-usdm@latest/dist/remoteEntry.js"
+        self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
+        # self.mfe_unpkg_url = "https://unpkg.com/mfe-usdm@latest/dist/remoteEntry.js"
         self.mfe_scope = "mfe_usdm"
         self.mfe_module = "./Table"
         self.api_base_url = "https://droughtmonitor.unl.edu/DmData/DataTables.aspx/ReturnTabularDMAreaPercent"
@@ -55,6 +56,7 @@ class DroughtDataTable(base.DataSource):
                 headers={"Content-Type": "application/json"}
             )
             data = r.json()
+            breakpoint()
             return data.get('d', [])
         except httpx.HTTPError as exc:
             logger.error(f"Error while requesting {exc.request.url!r}: {exc}")

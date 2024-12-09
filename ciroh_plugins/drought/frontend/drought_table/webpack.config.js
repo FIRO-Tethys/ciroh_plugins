@@ -1,15 +1,15 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin.js");
 const path = require('path');
-const Dotenv = require('dotenv-webpack');
 const TerserPlugin = require("terser-webpack-plugin");
 
 const deps = require("./package.json").dependencies;
 
 const printCompilationMessage = require('./compilation.config.js');
 
-module.exports = (_, argv) => ({
-
+module.exports = {
+  mode: 'development',
+  entry: path.join(__dirname, 'src/index.js'),
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, 'dist'),
@@ -88,6 +88,5 @@ module.exports = (_, argv) => ({
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
-    new Dotenv()
   ],
-});
+};
