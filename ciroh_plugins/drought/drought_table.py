@@ -51,7 +51,8 @@ class DroughtDataTable(base.DataSource):
             r = client.get(
                 url=f"{self.api_base_url}_{self.area_type}",
                 timeout=None,
-                params=params
+                params=params,
+                headers={"Content-Type": "application/json"}
             )
             data = r.json()
             return data.get('d', [])

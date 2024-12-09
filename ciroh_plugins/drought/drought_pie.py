@@ -26,10 +26,11 @@ class DroughtDataGraph(base.DataSource):
         self.area_type = area_type.split('-')[0]
         self.area = area_type.split('-')[1]
         self.date = date
+        self.statistic_type = 2
         super(DroughtDataGraph, self).__init__(metadata=metadata)
 
     def read(self):
-        data = self.get_pie_data(data)
+        data = self.get_pie_data()
         layout = self.create_layout()
         return {"data": data, "layout": layout}
 
@@ -73,15 +74,16 @@ class DroughtDataGraph(base.DataSource):
             client = httpx.Client(verify=False)
             params = {
                 'area': f'"{self.area}"', 
-                'type':f'"{self.area_type}"' , 
+                'dt':f'"{self.date}"' , 
                 'statstype': self.statistic_type
             }
-            r = client.get(
+            response = client.get(
                 url=f"{self.api_base_url}_{self.area_type}",
                 timeout=None,
-                params=params
+                params=params,
+                headers={"Content-Type": "application/json"}
             )
-            data = r.json()
+            data = response.json()
             unparsed_stats_data = data.get('d', [])
             labels = self._get_labels(unparsed_stats_data)
             values = self._get_values(unparsed_stats_data)

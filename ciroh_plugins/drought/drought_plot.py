@@ -31,13 +31,13 @@ class DroughtDataTimeSeries(base.DataSource):
         super(DroughtDataTimeSeries, self).__init__(metadata=metadata)
 
     def read(self):
-        data = self.get_data_time_series()
+        data = self._get_data_time_series()
         traces = self.create_usdm_traces(data) if self.data_index == 'usdm' else self.create_dsci_traces(data)
         layout = self.create_layout()
         return {"data": traces, "layout": layout}
 
-
-    def get_data_time_series(self):
+    
+    def _get_data_time_series(self):
         try:
             client = httpx.Client(verify=False)
             params = {
@@ -45,25 +45,18 @@ class DroughtDataTimeSeries(base.DataSource):
                 'type':f'"{self.area_type}"' , 
                 'statstype': self.statistic_type
             }
-            r = client.get(
-                url=f"{self.api_base_url}_{self.area_type}",
+            response = client.get(
+                url=f"{self.api_base_url}",
                 timeout=None,
-                params=params
+                params=params,
+                headers={"Content-Type": "application/json"}
             )
-            data = r.json()
+            data = response.json()
             unparsed_timeseries = data.get('d', [])
             if len(unparsed_timeseries) < 1:
                 return []
             else:
-                timeseries = []
-                for item in unparsed_timeseries:
-                    timeseries.append(
-                        {
-                            "x": datetime.strptime(item["date"], "%Y-%m-%d"),
-                            "y": item["value"],
-                        }
-                    )
-                return timeseries 
+                return unparsed_timeseries
         except httpx.HTTPError as exc:
             logger.error(f"Error while requesting {exc.request.url!r}: {exc}")
             return []

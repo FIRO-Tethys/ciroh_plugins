@@ -1,3 +1,10 @@
+
+import httpx
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Drought
 def get_drought_statistic_type():
         return [
@@ -24,7 +31,7 @@ def get_drought_statistic_type():
             }
         ]
 
-def get_drought_area_type_dropdown(area_type):
+def get_drought_area_type_dropdown():
     api_endpoint = 'https://droughtmonitor.unl.edu/DmData/DataTables.aspx/ReturnAOI'
     area_types_dict = {
         "national": "National",
@@ -119,7 +126,7 @@ def get_drought_dates():
     }
     for item in data.get('d', []):
         dropdown_item['options'].append({
-            "value": f'{item.value}',
+            "value": f'{item.get("Value")}',
             "label": item.get("Text")
         })
     dropdown_items.append(dropdown_item)
