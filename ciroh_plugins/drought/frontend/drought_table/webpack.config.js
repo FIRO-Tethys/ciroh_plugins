@@ -1,5 +1,5 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin.js");
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
 const TerserPlugin = require("terser-webpack-plugin");
