@@ -48,7 +48,7 @@ class DroughtDataTable(base.DataSource):
     def get_data_table(self):
         try:
             client = httpx.Client(verify=False)
-            params = {'area': f"'{self.area}'", 'statstype':f"'{self.statistic_type}'" , 'diff': f"'{self.data_type}'"}
+            params = {'area': f"'{self.area}'", 'statstype':f"'{self.statistic_type[0]}'" , 'diff': f"'{self.data_type}'"}
             r = client.get(
                 url=f"{self.api_base_url}_{self.area_type}",
                 timeout=None,

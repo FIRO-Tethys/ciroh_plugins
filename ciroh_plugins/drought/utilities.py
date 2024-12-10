@@ -13,19 +13,19 @@ def get_drought_statistic_type():
                 "options": [
                     {
                         "label": "Cumulative Percent Area",
-                        "value": "1",
+                        "value": 1,
                     },
                     {
                         "label": "Categorical Percent Area",
-                        "value": "2",
+                        "value": 2,
                     },
                     {
                         "label": "Cumulative Area",
-                        "value": "3",
+                        "value": 3,
                     },
                     {
                         "label": "Categorical Area",
-                        "value": "4",
+                        "value": 4,
                     },
                 ]
             }
