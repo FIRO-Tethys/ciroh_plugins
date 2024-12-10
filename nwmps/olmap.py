@@ -37,7 +37,7 @@ class MapVisualization(base.DataSource):
         # self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
         self.mfe_unpkg_url = "https://unpkg.com/mfe-ol@latest/dist/remoteEntry.js"
         self.mfe_scope = "mfe_ol"
-        self.mfe_module = "./Map"
+        self.mfe_module = "./MapComponent"
         self.zoom = zoom
         self.huc_id = huc_id
         parts = services.split("/")
