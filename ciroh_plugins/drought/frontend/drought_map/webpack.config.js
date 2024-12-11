@@ -21,7 +21,7 @@ module.exports = {
   },
 
   devServer: {
-    port: 3000,
+    port: 4000,
     historyApiFallback: true,
     watchFiles: [path.resolve(__dirname, 'src')],
     onListening: function (devServer) {

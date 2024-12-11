@@ -5,6 +5,85 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+def get_base_map_layers_dropdown():
+    return [
+        {
+            "label": "ArcGIS Map Service Base Maps",
+            "options": [
+                {
+                    "label": "World Light Gray Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
+                },
+                {
+                    "label": "World Dark Gray Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer",
+                },
+                {
+                    "label": "World Topo Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
+                },
+                {
+                    "label": "World Imagery",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+                },
+                {
+                    "label": "World Terrain Base",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer",
+                },
+                {
+                    "label": "World Street Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer",
+                },
+                {
+                    "label": "World Physical Map",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer",
+                },
+                {
+                    "label": "World Shaded Relief",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer",
+                },
+                {
+                    "label": "World Terrain Reference",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
+                },
+                {
+                    "label": "World Hillshade Dark",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade_Dark/MapServer",
+                },
+                {
+                    "label": "World Hillshade",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
+                },
+                {
+                    "label": "World Boundaries and Places Alternate",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places_Alternate/MapServer",
+                },
+                {
+                    "label": "World Boundaries and Places",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places/MapServer",
+                },
+                {
+                    "label": "World Reference Overlay",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Reference_Overlay/MapServer",
+                },
+                {
+                    "label": "World Transportation",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer",
+                },
+                {
+                    "label": "World Ocean Base ",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer",
+                },
+                {
+                    "label": "World Ocean Reference",
+                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer",
+                },
+            ],
+        }
+    ]
+
+
 # Drought
 def get_drought_statistic_type():
         return [
@@ -131,3 +210,24 @@ def get_drought_dates():
         })
     dropdown_items.append(dropdown_item)
     return dropdown_items
+
+
+def get_geojson(url):
+    try:
+        with httpx.Client(verify=False) as client:
+            r = client.get(
+                url=url,
+                timeout=None,
+            )
+            if r.status_code != 200:
+                logger.error(f"Error: {r.status_code}")
+                logger.error(r.text)
+                return None
+            else:
+                return r.json()
+    except httpx.HTTPError as exc:
+        logger.error(f"Error while requesting {exc.request.url!r}: {exc}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return None
