@@ -2,7 +2,6 @@ import React, { useEffect, Fragment} from 'react';
 import { Vector as VectorLayer } from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
-import 'ol/ol.css';
 import { usdmStyle } from './lib/layerStyles';
 import {
   View,
@@ -14,7 +13,13 @@ import {
 } from 'backlayer';
 
 
-const MapComponentContent = ({ viewConfig, layers, extraLayers }) => {
+const MapComponentContent = (
+    { 
+        viewConfig, 
+        layers, 
+        extraLayers 
+    }
+) => {
     const { map } = useMapContext();
     useEffect(() => {
       if (!map) return;
