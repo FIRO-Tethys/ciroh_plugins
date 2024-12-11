@@ -8,6 +8,8 @@ import {
   View,
   Layer,
   Layers,
+  Controls,
+  LayersControl,
   useMapContext
 } from 'backlayer';
 
@@ -25,6 +27,7 @@ const MapComponentContent = ({ viewConfig, layers, extraLayers }) => {
         });
         const vectorLayer = new VectorLayer({
           source: vectorSource,
+          name: 'USDM Archive',
           zIndex: 100,
           style: function (feature) {
             var classify = feature.get('DM');
@@ -44,6 +47,9 @@ const MapComponentContent = ({ viewConfig, layers, extraLayers }) => {
             <Layer key={index} config={config} />
           ))}
         </Layers>
+        <Controls>
+            <LayersControl />
+        </Controls>
       </Fragment>
     );
   };

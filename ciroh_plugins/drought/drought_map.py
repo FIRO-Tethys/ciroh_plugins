@@ -2,7 +2,7 @@ from intake.source import base
 import logging
 import httpx
 from .utilities import get_geojson, get_drought_dates,get_base_map_layers_dropdown
-from .sourceUrls import json_urls
+from .sourceUrls import json_urls,esri_urls
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,8 +49,31 @@ class DroughtMapViewer(base.DataSource):
         return layers
     
     def get_layers(self):
-        layers = [self.base_map_layer]
+        drought_outlook_layer = self.get_drought_outlook_layer()
+        layers = [self.base_map_layer,drought_outlook_layer]
         return layers
+    
+
+    def get_drought_outlook_layer(self):
+        service_url = esri_urls['cpc_drought_outlk_url_esri'];
+        layer_dict = {
+            "type": "ImageLayer",
+            "props": {
+                "source": {
+                    "type": "ImageArcGISRest",
+                    "props": {
+                        "url": service_url,
+                        "params": {
+                            "LAYERS": "show:0",
+                        },
+                    },
+                },
+                "name": 'Drought Outlook',
+                "visible": False,
+            },
+        }
+        logger.info(f"Service layer dictionary created for Drought Outlook")
+        return layer_dict
     
     def get_usdm_layer(self):
         url = f'{json_urls['usdm']}_{self.date}.json'
