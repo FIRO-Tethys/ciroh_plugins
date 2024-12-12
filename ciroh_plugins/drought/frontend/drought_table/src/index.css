@@ -1,0 +1,45 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+[data-column-id="Week"].rdt_TableCol {
+  background-color: #67625f;
+  color: #ffffff;
+}
+
+[data-column-id="None"].rdt_TableCol {
+  background-color: #67625f;
+  color: #ffffff;
+}
+[data-column-id="DSCI"].rdt_TableCol {
+  background-color: #67625f;
+  color: #ffffff;
+}
+
+[data-column-id="D0"].rdt_TableCol {
+  background-color: #ffff00;
+  color: #000000;
+}
+
+[data-column-id="D1"].rdt_TableCol {
+  background-color: #fcd37f;
+  color: #000000;
+}
+
+[data-column-id="D2"].rdt_TableCol {
+  background-color: #ffaa00;
+  color: #000000;
+}
+
+[data-column-id="D3"].rdt_TableCol {
+  background-color: #e60000;
+  color: #ffffff;
+}
+
+[data-column-id="D4"].rdt_TableCol {
+  background-color: #730000;
+  color: #ffffff;
+}
+
+
