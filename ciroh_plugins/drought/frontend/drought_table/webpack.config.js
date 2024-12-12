@@ -69,7 +69,7 @@ module.exports = {
 
   plugins: [
     new ModuleFederationPlugin({
-      name: "drought_table",
+      name: "mfe_drought_table",
       filename: "remoteEntry.js",
       exposes: {
         './TableComponent': './src/App',

@@ -22,8 +22,9 @@ class DroughtMapViewer(base.DataSource):
 
     def __init__(self,date,base_map_layer,metadata=None):
         self.date = date
-        self.mfe_unpkg_url = "http://localhost:4000/remoteEntry.js"
-        self.mfe_scope = "drought_map"
+        # self.mfe_unpkg_url = "http://localhost:4000/remoteEntry.js"
+        self.mfe_unpkg_url = "https://unpkg.com/mfe_drought_map@0.0.1/dist/remoteEntry.js"
+        self.mfe_scope = "mfe_drought_map"
         self.mfe_module = "./MapComponent"
         self.view = self.get_view_config()
         self.map_config = self.get_map_config()

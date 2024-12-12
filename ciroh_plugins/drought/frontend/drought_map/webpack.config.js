@@ -69,7 +69,7 @@ module.exports = {
 
   plugins: [
     new ModuleFederationPlugin({
-      name: "drought_map",
+      name: "mfe_drought_map",
       filename: "remoteEntry.js",
       exposes: {
         './MapComponent': './src/App',

@@ -1,6 +1,6 @@
 {
-  "name": "drought_table",
-  "version": "1.0.0",
+  "name": "mfe_drought_table",
+  "version": "0.0.1",
   "scripts": {
     "build": "webpack --mode production",
     "start": "webpack serve --mode development"
