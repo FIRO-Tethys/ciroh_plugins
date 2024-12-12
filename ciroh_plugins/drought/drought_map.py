@@ -69,11 +69,11 @@ class DroughtMapViewer(base.DataSource):
                         },
                     },
                 },
-                "name": 'Drought Outlook',
+                "name": 'Monthly Drought Outlook',
                 "visible": False,
             },
         }
-        logger.info(f"Service layer dictionary created for Drought Outlook")
+        logger.info(f"Service layer dictionary created for Monthly Drought Outlook")
         return layer_dict
     
     def get_usdm_layer(self):
