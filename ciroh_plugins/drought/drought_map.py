@@ -1,7 +1,7 @@
 from intake.source import base
 import logging
 import httpx
-from .utilities import get_geojson, get_drought_dates,get_base_map_layers_dropdown
+from .utilities import get_geojson, get_drought_dates,get_base_map_layers_dropdown,rgb_to_hex
 from .sourceUrls import json_urls,esri_urls
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -13,7 +13,7 @@ class DroughtMapViewer(base.DataSource):
     version = "0.0.4"
     name = "drought_map_viewer"
     visualization_args = {
-        "date": get_drought_dates(),
+        "date": get_drought_dates(), 
         "base_map_layer": get_base_map_layers_dropdown(),
     }
     visualization_group = "Drought_Monitor"
@@ -41,6 +41,7 @@ class DroughtMapViewer(base.DataSource):
                 "layers": self.get_layers(),
                 "viewConfig": self.view,
                 "mapConfig": self.map_config,
+                "legend": self.make_legend(),
             },
         }
 
@@ -124,3 +125,81 @@ class DroughtMapViewer(base.DataSource):
         }
         logger.info("Base layer dictionary created")
         return layer_dict
+    
+    @staticmethod
+    def get_USDM_legend():
+        legend = {
+            'title': 'USDM Archive',
+            'items':[
+                {
+                    "color": rgb_to_hex([255, 255, 0, 1]),
+                    "label": "Abnormally Dry",
+                },
+                {
+                    "color": rgb_to_hex([252, 211, 127, 1]),
+                    "label": "Moderate Drought",
+                },
+                {
+                    "color": rgb_to_hex([255, 170, 0, 1]),
+                    "label": "Severe Drought",
+                },
+                {
+                    "color": rgb_to_hex([230, 0, 0, 1]),
+                    "label": "Extreme Drought",
+                },
+                {
+                    "color": rgb_to_hex([115, 0, 0, 1]),
+                    "label": "Exceptional Drought",
+                },
+                {
+                    "color": rgb_to_hex([128, 128, 128, 1]),
+                    "label": "No Data",
+                },
+                {
+                    "color": rgb_to_hex([255, 255, 255, 1]),
+                    "label": "None",
+                },
+            ]
+
+
+        }
+        return legend
+
+    @staticmethod
+    def get_drought_outlook_legend():
+        legend = {
+            'title': 'Monthly Drought Outlook',
+            'items':[
+                {
+                    "color": '#9b634a',
+                    "label": " Drought Persists",
+                },
+                {
+                    "color": '#ded2bc',
+                    "label": " Drought Remains but Improves",
+                },
+                {
+                    "color": '#b2ad69',
+                    "label": "Drought Removal Likely",
+                },
+                {
+                    "color": '#ffde63',
+                    "label": "Drought Development Likely",
+                }
+            ]
+
+
+        }
+        return legend
+
+    
+    def make_legend(self):
+        """Create a list of dicts with color in hex and label."""
+
+        logger.info("Creating legend for the map")
+        legend = [self.get_USDM_legend(), self.get_drought_outlook_legend()]
+
+
+        logger.info("Legend created successfully")
+        return legend
+    

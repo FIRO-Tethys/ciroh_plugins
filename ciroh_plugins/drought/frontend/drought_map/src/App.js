@@ -15,13 +15,13 @@ const MapComponent = (
     mapConfig, 
     viewConfig, 
     layers,
-    extraLayers
+    extraLayers,
+    legend
   }) => {
-
 
   return (
     <Map {...mapConfig} >
-      <MapComponentContent viewConfig={viewConfig} layers={layers} extraLayers={extraLayers} />
+      <MapComponentContent viewConfig={viewConfig} layers={layers} extraLayers={extraLayers} legend={legend} />
     </Map>
   );
 }

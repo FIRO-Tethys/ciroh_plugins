@@ -9,6 +9,7 @@ import {
   Layers,
   Controls,
   LayersControl,
+  LegendControl,
   useMapContext
 } from 'backlayer';
 
@@ -17,9 +18,11 @@ const MapComponentContent = (
     { 
         viewConfig, 
         layers, 
-        extraLayers 
+        extraLayers,
+        legend 
     }
 ) => {
+    console.log(legend)
     const { map } = useMapContext();
     useEffect(() => {
       if (!map) return;
@@ -54,6 +57,7 @@ const MapComponentContent = (
         </Layers>
         <Controls>
             <LayersControl />
+            <LegendControl items={legend} />
         </Controls>
       </Fragment>
     );

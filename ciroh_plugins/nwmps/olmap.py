@@ -109,10 +109,15 @@ class MapVisualization(base.DataSource):
         layer_info = get_layer_info(self.BASE_URL, self.service, self.layer_id)
         drawing_info = get_drawing_info(layer_info, self.service, self.layer_id)
         legend = []
+        legend_item = {
+            'title': self.service.replace("_"," ").title(),
+            'items': []
+        }
         for item in drawing_info:
             hex_color = rgb_to_hex(item["symbol"]["color"])
-            legend.append({"color": hex_color, "label": item["label"]})
+            legend_item['items'].append({"color": hex_color, "label": item["label"]})
 
+        legend.append(legend_item)
         logger.info("Legend created successfully")
         return legend
 

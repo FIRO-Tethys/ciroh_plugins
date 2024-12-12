@@ -83,7 +83,11 @@ def get_base_map_layers_dropdown():
         }
     ]
 
-
+def rgb_to_hex(rgb_color):
+    """Convert RGB color to hex color code."""
+    if rgb_color and len(rgb_color) >= 3:
+        return "#{:02x}{:02x}{:02x}".format(*rgb_color[:3])
+    return "#000000"
 # Drought
 def get_drought_statistic_type():
         return [
