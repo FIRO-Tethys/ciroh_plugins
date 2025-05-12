@@ -29,6 +29,11 @@ class NWMPService(base.DataSource):
     container = "python"
     version = "0.0.4"
     name = "nwmp_data_service"
+
+    visualization_tags = ["national", "water", "model", "nwm", "gauge", "flood"]
+    visualization_description = (
+        "Provides a summary of RFC gauges inside a HUC and their current flood status"
+    )
     visualization_args = {
         "huc_id": "text",
         "service_and_layer_id": get_services_dropdown(),
@@ -128,7 +133,7 @@ class NWMPService(base.DataSource):
                 lambda x: self.get_label_and_color_for_value(str(x), symbol_dict)
             )
         )
-        df["hex"] = df["color"].apply(lambda x: rgb_to_hex(x))
+        df["color"] = df["color"].apply(lambda x: rgb_to_hex(x))
         return df
 
     def assign_labels_and_colors_based_on_range(
@@ -137,7 +142,7 @@ class NWMPService(base.DataSource):
         value_column,
         symbol_list,
         label_column="label",
-        color_column="hex",
+        color_column="color",
     ):
         """
         Assign labels and colors to a DataFrame based on a value column and a symbol list.
@@ -214,7 +219,9 @@ class NWMPService(base.DataSource):
 
     def get_statistics(self, df):
         """Compute statistics from the DataFrame."""
-        grouped = df.groupby(by=["label", "hex"], as_index=False).size()
+        grouped = df.groupby(by=["label", "color"], as_index=False).size()
         grouped = grouped[grouped["size"] > 0].reset_index(drop=True)  # tmp fix
+        grouped["value"] = grouped["size"]
+        grouped = grouped.drop("size", axis=1)
         stats = grouped.to_dict("records")
         return stats

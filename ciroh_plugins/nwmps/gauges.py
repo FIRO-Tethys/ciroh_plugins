@@ -14,6 +14,18 @@ class NWMPSGaugesSeries(base.DataSource):
     container = "python"
     version = "0.0.4"
     name = "nwmp_api_gauges"
+    visualization_tags = [
+        "national",
+        "water",
+        "model",
+        "nwm",
+        "gauge",
+        "time series",
+        "observed",
+        "forecast",
+        "rfc",
+    ]
+    visualization_description = "An interactive chart of observed and forecasted streamflows (if available) for RFC gauges. Gauge action and above stages are also available in the plot"
     visualization_args = {"id": "text"}
     visualization_group = "NWMP"
     visualization_label = "NWMP Gauges Time Series"
@@ -64,34 +76,39 @@ class NWMPSGaugesSeries(base.DataSource):
             if dataset_name in self.data:
                 dataset = self.data[dataset_name]
                 data_points = dataset.get("data", [])
-                times = [d["validTime"] for d in data_points]
-                primary_values = [d.get("primary", None) for d in data_points]
-                secondary_values = [d.get("secondary", None) for d in data_points]
 
-                hover_text = []
-                for t, p, s in zip(times, primary_values, secondary_values):
-                    utc_time = datetime.strptime(t, "%Y-%m-%dT%H:%M:%SZ")
-                    formatted_time = utc_time.strftime("%a %B %d %Y %I:%M:%S %p")
-                    text = (
-                        f"Time: {formatted_time}<br>{dataset.get('primaryUnits')}: {p}"
-                    )
-                    if s is not None and s >= 0:
-                        text += f"<br>{dataset.get('secondaryUnits')}: {s}"
-                    hover_text.append(text)
+                if data_points:
+                    times = [d["validTime"] for d in data_points]
+                    primary_values = [d.get("primary", None) for d in data_points]
+                    secondary_values = [d.get("secondary", None) for d in data_points]
 
-                trace = {
-                    "x": times,
-                    "y": primary_values,
-                    "mode": "lines",
-                    "name": dataset_name.capitalize(),
-                    "yaxis": "y1",
-                    "hoverinfo": "text",
-                    "text": hover_text,
-                }
+                    hover_text = []
+                    for t, p, s in zip(times, primary_values, secondary_values):
+                        utc_time = datetime.strptime(t, "%Y-%m-%dT%H:%M:%SZ")
+                        formatted_time = utc_time.strftime("%a %B %d %Y %I:%M:%S %p")
+                        text = f"Time: {formatted_time}<br>{dataset.get('primaryUnits')}: {p}"
+                        if s is not None and s >= 0:
+                            text += f"<br>{dataset.get('secondaryUnits')}: {s}"
+                        hover_text.append(text)
 
-                traces.append(trace)
-                traceFake = {"x": times[0], "y": [0], "yaxis": "y2", "visible": False}
-                traces.append(traceFake)
+                    trace = {
+                        "x": times,
+                        "y": primary_values,
+                        "mode": "lines",
+                        "name": dataset_name.capitalize(),
+                        "yaxis": "y1",
+                        "hoverinfo": "text",
+                        "text": hover_text,
+                    }
+
+                    traces.append(trace)
+                    traceFake = {
+                        "x": times[0],
+                        "y": [0],
+                        "yaxis": "y2",
+                        "visible": False,
+                    }
+                    traces.append(traceFake)
 
         return traces
 

@@ -1,4 +1,3 @@
-
 import httpx
 import logging
 
@@ -83,39 +82,43 @@ def get_base_map_layers_dropdown():
         }
     ]
 
+
 def rgb_to_hex(rgb_color):
     """Convert RGB color to hex color code."""
     if rgb_color and len(rgb_color) >= 3:
         return "#{:02x}{:02x}{:02x}".format(*rgb_color[:3])
     return "#000000"
+
+
 # Drought
 def get_drought_statistic_type():
-        return [
-            {
-                "label": "Drought Statistic Type",
-                "options": [
-                    {
-                        "label": "Cumulative Percent Area",
-                        "value": 1,
-                    },
-                    {
-                        "label": "Categorical Percent Area",
-                        "value": 2,
-                    },
-                    {
-                        "label": "Cumulative Area",
-                        "value": 3,
-                    },
-                    {
-                        "label": "Categorical Area",
-                        "value": 4,
-                    },
-                ]
-            }
-        ]
+    return [
+        {
+            "label": "Drought Statistic Type",
+            "options": [
+                {
+                    "label": "Cumulative Percent Area",
+                    "value": 1,
+                },
+                {
+                    "label": "Categorical Percent Area",
+                    "value": 2,
+                },
+                {
+                    "label": "Cumulative Area",
+                    "value": 3,
+                },
+                {
+                    "label": "Categorical Area",
+                    "value": 4,
+                },
+            ],
+        }
+    ]
+
 
 def get_drought_area_type_dropdown():
-    api_endpoint = 'https://droughtmonitor.unl.edu/DmData/DataTables.aspx/ReturnAOI'
+    api_endpoint = "https://droughtmonitor.unl.edu/DmData/DataTables.aspx/ReturnAOI"
     area_types_dict = {
         "national": "National",
         "state": "State",
@@ -141,24 +144,26 @@ def get_drought_area_type_dropdown():
     dropdown_items = []
     client = httpx.Client(verify=False)
     for key, value in area_types_dict.items():
-        dropdown_item ={
-            "label": value,
-            "options":[]
-        }
+        dropdown_item = {"label": value, "options": []}
         try:
-            response = client.get(f'{api_endpoint}?aoi="{key}"', headers={"Content-Type": "application/json"})
+            response = client.get(
+                f'{api_endpoint}?aoi="{key}"',
+                headers={"Content-Type": "application/json"},
+            )
             data = response.json()
-            for item in data.get('d', []):
-                dropdown_item['options'].append({
-                    "value": f'{key}-{item.get("Value")}',
-                    "label": item.get("Text")
-                })
+            for item in data.get("d", []):
+                dropdown_item["options"].append(
+                    {"value": f'{key}-{item.get("Value")}', "label": item.get("Text")}
+                )
             dropdown_items.append(dropdown_item)
         except httpx.HTTPError as exc:
-            logger.error(f"Error while requesting {exc.request.url!r}: {str(exc.__class__.__name__)}")
+            logger.error(
+                f"Error while requesting {exc.request.url!r}: {str(exc.__class__.__name__)}"
+            )
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
     return dropdown_items
+
 
 def get_drought_data_type():
     return [
@@ -172,8 +177,8 @@ def get_drought_data_type():
                 {
                     "label": "7-day Change",
                     "value": "1",
-                }
-            ]
+                },
+            ],
         }
     ]
 
@@ -191,27 +196,28 @@ def get_drought_index():
                 {
                     "label": "DSCI",
                     "value": "DSCI",
-                }
-            ]
+                },
+            ],
         }
     ]
 
 
 def get_drought_dates():
-    api_endpoint = 'https://droughtmonitor.unl.edu/Maps/CompareTwoWeeks.aspx/ReturnDates'
+    print("Getting dates for drought")
+    api_endpoint = (
+        "https://droughtmonitor.unl.edu/Maps/CompareTwoWeeks.aspx/ReturnDates"
+    )
     client = httpx.Client(verify=False)
-    response = client.get(f'{api_endpoint}', headers={"Content-Type": "application/json"})
+    response = client.get(
+        f"{api_endpoint}", headers={"Content-Type": "application/json"}
+    )
     data = response.json()
     dropdown_items = []
-    dropdown_item ={
-        "label": "Drought Dates",
-        "options":[]
-    }
-    for item in data.get('d', []):
-        dropdown_item['options'].append({
-            "value": f'{item.get("Value")}',
-            "label": item.get("Text")
-        })
+    dropdown_item = {"label": "Drought Dates", "options": []}
+    for item in data.get("d", []):
+        dropdown_item["options"].append(
+            {"value": f'{item.get("Value")}', "label": item.get("Text")}
+        )
     dropdown_items.append(dropdown_item)
     return dropdown_items
 

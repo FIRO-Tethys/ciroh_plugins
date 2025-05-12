@@ -13,6 +13,16 @@ class NWMPSReachesSeries(base.DataSource):
     container = "python"
     version = "0.0.4"
     name = "nwmp_api_reaches"
+    visualization_tags = [
+        "national",
+        "water",
+        "model",
+        "nwm",
+        "reach",
+        "time series",
+        "ensemble",
+    ]
+    visualization_description = "An interactive chart that depicts the analysis and configuration, short range, medium range, and long range streamflow forecasts from the National Water Model"
     visualization_args = {
         "id": "text",
     }

@@ -1,8 +1,14 @@
 from intake.source import base
 import logging
 import httpx
-from .utilities import get_geojson, get_drought_dates,get_base_map_layers_dropdown,rgb_to_hex
-from .sourceUrls import json_urls,esri_urls
+from .utilities import (
+    get_geojson,
+    get_drought_dates,
+    get_base_map_layers_dropdown,
+    rgb_to_hex,
+)
+from .sourceUrls import json_urls, esri_urls
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,18 +18,29 @@ class DroughtMapViewer(base.DataSource):
     container = "python"
     version = "0.0.4"
     name = "drought_map_viewer"
+    visualization_tags = [
+        "ciroh",
+        "drought",
+        "map",
+        "outlook",
+    ]
+    visualization_description = (
+        "A United States map depicting drought areas and drought severity"
+    )
     visualization_args = {
-        "date": get_drought_dates(), 
+        "date": get_drought_dates(),
         "base_map_layer": get_base_map_layers_dropdown(),
     }
     visualization_group = "Drought_Monitor"
     visualization_label = "Drought Monitor Map Viewer"
     visualization_type = "custom"
 
-    def __init__(self,date,base_map_layer,metadata=None):
+    def __init__(self, date, base_map_layer, metadata=None):
         self.date = date
         # self.mfe_unpkg_url = "http://localhost:4000/remoteEntry.js"
-        self.mfe_unpkg_url = "https://unpkg.com/mfe_drought_map@0.0.1/dist/remoteEntry.js"
+        self.mfe_unpkg_url = (
+            "https://unpkg.com/mfe_drought_map@0.0.1/dist/remoteEntry.js"
+        )
         self.mfe_scope = "mfe_drought_map"
         self.mfe_module = "./MapComponent"
         self.view = self.get_view_config()
@@ -49,15 +66,14 @@ class DroughtMapViewer(base.DataSource):
     def get_extra_layers(self):
         layers = [self.get_usdm_layer()]
         return layers
-    
+
     def get_layers(self):
         drought_outlook_layer = self.get_drought_outlook_layer()
-        layers = [self.base_map_layer,drought_outlook_layer]
+        layers = [self.base_map_layer, drought_outlook_layer]
         return layers
-    
 
     def get_drought_outlook_layer(self):
-        service_url = esri_urls['cpc_drought_outlk_url_esri'];
+        service_url = esri_urls["cpc_drought_outlk_url_esri"]
         layer_dict = {
             "type": "ImageLayer",
             "props": {
@@ -70,22 +86,21 @@ class DroughtMapViewer(base.DataSource):
                         },
                     },
                 },
-                "name": 'Monthly Drought Outlook',
+                "name": "Monthly Drought Outlook",
                 "visible": False,
             },
         }
         logger.info(f"Service layer dictionary created for Monthly Drought Outlook")
         return layer_dict
-    
+
     def get_usdm_layer(self):
-        url = f'{json_urls['usdm']}_{self.date}.json'
+        url = f"{json_urls['usdm']}_{self.date}.json"
         try:
             usdm_layer = get_geojson(url)
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
             return None
         return usdm_layer
-
 
     @staticmethod
     def get_map_config():
@@ -95,19 +110,18 @@ class DroughtMapViewer(base.DataSource):
         }
         logger.info("Map configuration created")
         return map_config
-    
+
     @staticmethod
     def get_view_config():
 
         view_config = {
-          "center": [-11807318, 4983337],
-          "zoom": 4,
-          "maxZoom": 11,
-          "minZoom": 3,
+            "center": [-11807318, 4983337],
+            "zoom": 4,
+            "maxZoom": 11,
+            "minZoom": 3,
         }
         logger.info("View configuration created")
         return view_config
-
 
     @staticmethod
     def get_esri_base_layer_dict(base_map_layer):
@@ -126,12 +140,12 @@ class DroughtMapViewer(base.DataSource):
         }
         logger.info("Base layer dictionary created")
         return layer_dict
-    
+
     @staticmethod
     def get_USDM_legend():
         legend = {
-            'title': 'USDM Archive',
-            'items':[
+            "title": "USDM Archive",
+            "items": [
                 {
                     "color": rgb_to_hex([255, 255, 0, 1]),
                     "label": "Abnormally Dry",
@@ -160,47 +174,40 @@ class DroughtMapViewer(base.DataSource):
                     "color": rgb_to_hex([255, 255, 255, 1]),
                     "label": "None",
                 },
-            ]
-
-
+            ],
         }
         return legend
 
     @staticmethod
     def get_drought_outlook_legend():
         legend = {
-            'title': 'Monthly Drought Outlook',
-            'items':[
+            "title": "Monthly Drought Outlook",
+            "items": [
                 {
-                    "color": '#9b634a',
+                    "color": "#9b634a",
                     "label": " Drought Persists",
                 },
                 {
-                    "color": '#ded2bc',
+                    "color": "#ded2bc",
                     "label": " Drought Remains but Improves",
                 },
                 {
-                    "color": '#b2ad69',
+                    "color": "#b2ad69",
                     "label": "Drought Removal Likely",
                 },
                 {
-                    "color": '#ffde63',
+                    "color": "#ffde63",
                     "label": "Drought Development Likely",
-                }
-            ]
-
-
+                },
+            ],
         }
         return legend
 
-    
     def make_legend(self):
         """Create a list of dicts with color in hex and label."""
 
         logger.info("Creating legend for the map")
         legend = [self.get_USDM_legend(), self.get_drought_outlook_legend()]
 
-
         logger.info("Legend created successfully")
         return legend
-    
