@@ -1,6 +1,5 @@
 from intake.source import base
 import logging
-import httpx
 from .utilities import (
     get_geojson,
     get_drought_dates,

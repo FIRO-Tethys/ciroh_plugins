@@ -28,12 +28,13 @@ class MapVisualization(base.DataSource):
         "zoom": "number",
         "huc_id": "text",
         "services": get_services_dropdown(),
+        "layer index": "number"
     }
     visualization_group = "NWMP"
     visualization_label = "NWMP Map"
     visualization_type = "custom"
 
-    def __init__(self, base_map_layer, zoom, services, huc_id, metadata=None):
+    def __init__(self, base_map_layer, zoom, services, huc_id, layer_index, metadata=None):
         # self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
         self.mfe_unpkg_url = "https://unpkg.com/mfe-ol@latest/dist/remoteEntry.js"
         self.mfe_scope = "mfe_ol"

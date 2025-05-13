@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 DATA_SERVICES = {
     "riv_gauges": {
-        "name": " National Water Prediction Service (NWPS) River Gauge System",
+        "name": "National Water Prediction Service (NWPS) River Gauge System",
         "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water",
         "layers": [
             {
@@ -530,16 +530,16 @@ def get_services_dropdown():
     return [
         {
             "label": service["name"],
-            "options": [
-                {
-                    "label": layer["name"],
-                    "value": f"{service['url']}/{service_key}/MapServer/{layer['id']}",
-                }
-                for layer in service["layers"]
-            ],
+            "value": f"{service['url']}/{service_key}/MapServer/"
         }
         for service_key, service in DATA_SERVICES.items()
     ]
+
+
+def get_layers_dropdown(service_url):
+    service_key = service_url.split('/')[-3]
+    layers = DATA_SERVICES[service_key]['layers']
+    return [{'label': layer['name'], 'value': layer['id']} for layer in layers]
 
 
 def get_service_layers():
