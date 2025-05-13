@@ -49,3 +49,6 @@ zip-safe = false
 
 [tool.setuptools.packages.find]
 include = ["*"]
+
+[tool.setuptools.package-data]
+"ciroh_plugins" = ["static/*.png"]
