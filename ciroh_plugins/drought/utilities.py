@@ -1,5 +1,6 @@
 import httpx
 import logging
+from .drought_area_types import drought_area_types
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -118,51 +119,7 @@ def get_drought_statistic_type():
 
 
 def get_drought_area_type_dropdown():
-    api_endpoint = "https://droughtmonitor.unl.edu/DmData/DataTables.aspx/ReturnAOI"
-    area_types_dict = {
-        "national": "National",
-        "state": "State",
-        "climdiv": "Climate Division",
-        "dregion": "Geographic Regions",
-        "county": "County",
-        "fema": "FEMA Region",
-        "huc2": "HUC (2 digit)",
-        "huc4": "HUC (4 digit)",
-        "huc6": "HUC (6 digit)",
-        "huc8": "HUC (8 digit)",
-        "nws": "NWS Region",
-        "wfo": "NWS Weather Forecast Offices",
-        "rfc": "River Forecast Centers",
-        "tribal": "Tribal Areas",
-        "usaceds": "USACE District",
-        "usacedv": "USACE Division",
-        "chubs": "USDA Climate Hubs",
-        "rdews": "Regional Drought Early Warning System",
-        "rcc": "Regional Climate Centers",
-        "oregion": "Other Regions",
-    }
-    dropdown_items = []
-    client = httpx.Client(verify=False)
-    for key, value in area_types_dict.items():
-        dropdown_item = {"label": value, "options": []}
-        try:
-            response = client.get(
-                f'{api_endpoint}?aoi="{key}"',
-                headers={"Content-Type": "application/json"},
-            )
-            data = response.json()
-            for item in data.get("d", []):
-                dropdown_item["options"].append(
-                    {"value": f'{key}-{item.get("Value")}', "label": item.get("Text")}
-                )
-            dropdown_items.append(dropdown_item)
-        except httpx.HTTPError as exc:
-            logger.error(
-                f"Error while requesting {exc.request.url!r}: {str(exc.__class__.__name__)}"
-            )
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-    return dropdown_items
+    return drought_area_types
 
 
 def get_drought_data_type():
