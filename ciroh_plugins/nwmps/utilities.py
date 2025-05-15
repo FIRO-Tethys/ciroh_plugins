@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 DATA_SERVICES = {
     "riv_gauges": {
-        "name": " National Water Prediction Service (NWPS) River Gauge System",
+        "name": "National Water Prediction Service (NWPS) River Gauge System",
         "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water",
         "layers": [
             {
@@ -178,7 +178,7 @@ DATA_SERVICES = {
         "url": "https://maps.water.noaa.gov/server/rest/services/nwm",
         "layers": [
             {
-                "name": "18 Hours - Rapid Onset Flood Arrival Time (0)",
+                "name": "18 Hours - Rapid Onset Flood Arrival Time (0)",  # TODO this is not working
                 "filter_attr": "flood_start_hour",
                 "id": 0,
                 "drawingInfoAttr": "uniqueValueInfos",
@@ -389,7 +389,7 @@ DATA_SERVICES = {
                 "drawingInfoValueAttr": "classMaxValue",
             },
             {
-                "name": "10 Day - NWM Waterway Length Flooded (2)",
+                "name": "10 Day - NWM Waterway Length Flooded (2)",  # TODO layer attributes don't show up
                 "filter_attr": "nwm_waterway_length_flooded_percent",
                 "id": 2,
                 "drawingInfoAttr": "uniqueValueInfos",
@@ -530,16 +530,16 @@ def get_services_dropdown():
     return [
         {
             "label": service["name"],
-            "options": [
-                {
-                    "label": layer["name"],
-                    "value": f"{service['url']}/{service_key}/MapServer/{layer['id']}",
-                }
-                for layer in service["layers"]
-            ],
+            "value": f"{service['url']}/{service_key}/MapServer/"
         }
         for service_key, service in DATA_SERVICES.items()
     ]
+
+
+def get_layers_dropdown(service_url):
+    service_key = service_url.split('/')[-3]
+    layers = DATA_SERVICES[service_key]['layers']
+    return [{'label': layer['name'], 'value': layer['id']} for layer in layers]
 
 
 def get_service_layers():
@@ -572,17 +572,20 @@ def get_drawing_info_attr(service_name, layer_id):
     return None
 
 
-def get_drawing_info(layer_info, service, layer_id):
+def get_drawing_info(layer_info, service_name, layer_id):
     """Extract drawing information from layer info."""
     renderer = layer_info.get("drawingInfo", {}).get("renderer", {})
-    drawing_attr = get_drawing_info_attr(service, layer_id)
+    drawing_attr = get_drawing_info_attr(service_name, layer_id)
     drawings = renderer.get(drawing_attr, {})
     return drawings
 
 
-def get_layer_info(base_url, service, layer_id):
+def get_layer_info(service, layer_id):
     """Retrieve layer information from the NWMP service."""
-    layer_url = f"{base_url}/{service}/MapServer/{layer_id}"
+    if service.endswith('/'):
+        layer_url = f"{service}{layer_id}"
+    else:
+        layer_url = f"{service}/{layer_id}"
     try:
         response = requests.get(f"{layer_url}?f=json")
         response.raise_for_status()

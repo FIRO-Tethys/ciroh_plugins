@@ -2,7 +2,13 @@ import React from 'react';
 import DataTable from 'react-data-table-component';
 import './index.css';
 
-
+const customStyles = ({
+  pagination: {
+    style: {
+      overflow: "hidden",
+    }
+  }
+})
 const header_name = {
   D0: 'D0-D4',
   D1: 'D1-D4',
@@ -36,12 +42,15 @@ const TableComponent = ({ data }) => {
   ];
 
   return (
-    <DataTable
-      columns={formatedColumns}
-      data={data}
-      pagination
-      defaultSortField="Week"
-    />
+    <div className="table-wrapper-custom">
+      <DataTable
+        columns={formatedColumns}
+        customStyles={customStyles}
+        data={data}
+        pagination
+        defaultSortField="Week"
+      />
+    </div>
   );
 };
 

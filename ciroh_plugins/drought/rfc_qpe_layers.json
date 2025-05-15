@@ -1,0 +1,274 @@
+[
+    {
+        "name": "Observed",
+        "id": 0
+    },
+    {
+        "name": "Since 12Z Observed (inches)",
+        "id": 1
+    },
+    {
+        "name": "Last 1 Hours Observed (inches)",
+        "id": 5
+    },
+    {
+        "name": "Last 2 Hours Observed (inches)",
+        "id": 9
+    },
+    {
+        "name": "Last 3 Hours Observed (inches)",
+        "id": 13
+    },
+    {
+        "name": "Last 6 Hours Observed (inches)",
+        "id": 17
+    },
+    {
+        "name": "Last 12 Hours Observed (inches)",
+        "id": 21
+    },
+    {
+        "name": "Last 24 Hours Observed (inches)",
+        "id": 25
+    },
+    {
+        "name": "Today's Analysis Observed (inches)",
+        "id": 29
+    },
+    {
+        "name": "Last 2 Days Observed (inches)",
+        "id": 33
+    },
+    {
+        "name": "Last 3 Days Observed (inches)",
+        "id": 37
+    },
+    {
+        "name": "Last 4 Days Observed (inches)",
+        "id": 41
+    },
+    {
+        "name": "Last 5 Days Observed (inches)",
+        "id": 45
+    },
+    {
+        "name": "Last 6 Days Observed (inches)",
+        "id": 49
+    },
+    {
+        "name": "Last 7  Days Observed (inches)",
+        "id": 53
+    },
+    {
+        "name": "Last 10 Days Observed (inches)",
+        "id": 57
+    },
+    {
+        "name": "Last 14 Days Observed (inches)",
+        "id": 61
+    },
+    {
+        "name": "Last 30 Days Observed (inches)",
+        "id": 65
+    },
+    {
+        "name": "Last 60 Days Observed (inches)",
+        "id": 69
+    },
+    {
+        "name": "Last 90 Days Observed (inches)",
+        "id": 73
+    },
+    {
+        "name": "Last 120 Days Observed (inches)",
+        "id": 77
+    },
+    {
+        "name": "Last 180 Days Observed (inches)",
+        "id": 81
+    },
+    {
+        "name": "Last 365 Days Observed (inches)",
+        "id": 85
+    },
+    {
+        "name": "Month to Date Observed (inches)",
+        "id": 89
+    },
+    {
+        "name": "Year to Date Observed (inches)",
+        "id": 93
+    },
+    {
+        "name": "Water Year to Date Observed (inches)",
+        "id": 97
+    },
+    {
+        "name": "Normal",
+        "id": 101
+    },
+    {
+        "name": "Today's Normal (inches)",
+        "id": 102
+    },
+    {
+        "name": "Last 7 Days Normal (inches)",
+        "id": 106
+    },
+    {
+        "name": "Last 10 Days Normal (inches)",
+        "id": 110
+    },
+    {
+        "name": "Last 14 Days Normal (inches)",
+        "id": 114
+    },
+    {
+        "name": "Last 30 Days Normal (inches)",
+        "id": 118
+    },
+    {
+        "name": "Last 60 Days Normal (inches)",
+        "id": 122
+    },
+    {
+        "name": "Last 90 Days Normal (inches)",
+        "id": 126
+    },
+    {
+        "name": "Last 120 Days Normal (inches)",
+        "id": 130
+    },
+    {
+        "name": "Last 180 Days Normal (inches)",
+        "id": 134
+    },
+    {
+        "name": "Last 365 Days Normal (inches)",
+        "id": 138
+    },
+    {
+        "name": "Month to Date  Normal (inches)",
+        "id": 142
+    },
+    {
+        "name": "Year to Date Normal (inches)",
+        "id": 146
+    },
+    {
+        "name": "Water Year to Date Normal (inches)",
+        "id": 150
+    },
+    {
+        "name": "Departure From Normal",
+        "id": 154
+    },
+    {
+        "name": "Today's Departure from Normal (inches)",
+        "id": 155
+    },
+    {
+        "name": "Last 7 Days Departure from Normal (inches)",
+        "id": 159
+    },
+    {
+        "name": "Last 10 Days Departure from Normal (inches)",
+        "id": 163
+    },
+    {
+        "name": "Last 14 Days Departure from Normal (inches)",
+        "id": 167
+    },
+    {
+        "name": "Last 30 Days Departure from Normal (inches)",
+        "id": 171
+    },
+    {
+        "name": "Last 60 Days Departure from Normal (inches)",
+        "id": 175
+    },
+    {
+        "name": "Last 90 Days Departure from Normal (inches)",
+        "id": 179
+    },
+    {
+        "name": "Last 120 Days Departure from Normal (inches)",
+        "id": 183
+    },
+    {
+        "name": "Last 180 Days Departure from Normal (inches)",
+        "id": 187
+    },
+    {
+        "name": "Last 365 Days Departure from Normal (inches)",
+        "id": 191
+    },
+    {
+        "name": "Month to Date Departure from Normal (inches)",
+        "id": 195
+    },
+    {
+        "name": "Year to Date Departure from Normal (inches)",
+        "id": 199
+    },
+    {
+        "name": "Water Year to Date Departure from Normal (inches)",
+        "id": 203
+    },
+    {
+        "name": "Percent of Normal",
+        "id": 207
+    },
+    {
+        "name": "Today's Percent of Normal (%)",
+        "id": 208
+    },
+    {
+        "name": "Last 7 Days Percent of Normal (%) ",
+        "id": 212
+    },
+    {
+        "name": "Last 10 Days Percent of Normal (%)",
+        "id": 216
+    },
+    {
+        "name": "Last 14 Days Percent of Normal (%) ",
+        "id": 220
+    },
+    {
+        "name": "Last 30 Days Percent of Normal (%)",
+        "id": 224
+    },
+    {
+        "name": "Last 60 Days Percent of Normal (%)",
+        "id": 228
+    },
+    {
+        "name": "Last 90 Days Percent of Normal (%) ",
+        "id": 232
+    },
+    {
+        "name": "Last 120 Days Percent of Normal (%)",
+        "id": 236
+    },
+    {
+        "name": "Last 180 Days Percent of Normal (%)",
+        "id": 240
+    },
+    {
+        "name": "Last 365 Days Percent of Normal (%)",
+        "id": 244
+    },
+    {
+        "name": "Month to Date Percent of Normal (%)",
+        "id": 248
+    },
+    {
+        "name": "Year to Date Percent of Normal (%) ",
+        "id": 252
+    },
+    {
+        "name": "Water Year to Date Percent of Normal (%)",
+        "id": 256
+    }
+]

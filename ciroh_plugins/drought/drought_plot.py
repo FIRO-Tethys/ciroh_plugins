@@ -1,7 +1,6 @@
 from intake.source import base
 import httpx
 from .utilities import get_drought_area_type_dropdown, get_drought_index
-from datetime import datetime
 import logging
 
 # Set up logging
@@ -29,7 +28,6 @@ class DroughtDataTimeSeries(base.DataSource):
     visualization_type = "plotly"
 
     def __init__(self, area_type, data_index, metadata=None):
-
         self.api_base_url = "https://droughtmonitor.unl.edu/DmData/TimeSeries.aspx/ReturnBasicDmTimeSeries"
         self.area_type = area_type.split("-")[0]
         self.area = area_type.split("-")[1]

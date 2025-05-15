@@ -1,0 +1,38 @@
+{
+    "version": 8,
+    "name": "USDM Archive Fill + Outline",
+    "sources": {
+        "USDM Archive": {
+        "type": "geojson"
+        }
+    },
+    "layers": [
+        {
+        "id": "usdm-fill",
+        "type": "fill",
+        "source": "USDM Archive",
+        "paint": {
+            "fill-color": [
+            "match",
+            ["get", "DM"],
+            0, "#ffff00",
+            1, "#fcd37f",
+            2, "#ffaa00",
+            3, "#e60000",
+            4, "#730000",
+            "#000000"
+            ],
+            "fill-opacity": 1
+        }
+        },
+        {
+        "id": "usdm-outline",
+        "type": "line",
+        "source": "USDM Archive",
+        "paint": {
+            "line-color": "#c0c0c0",
+            "line-width": 0.3
+        }
+        }
+    ]
+}
