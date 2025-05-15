@@ -35,7 +35,7 @@ class DroughtDataTable(base.DataSource):
     def __init__(self, area_type, statistic_type, data_type, metadata=None):
         # self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
         self.mfe_unpkg_url = (
-            "https://unpkg.com/mfe_drought_table@0.0.1/dist/remoteEntry.js"
+            "https://unpkg.com/mfe_drought_table@0.0.2/dist/remoteEntry.js"
         )
         self.mfe_scope = "mfe_drought_table"
         self.mfe_module = "./TableComponent"
