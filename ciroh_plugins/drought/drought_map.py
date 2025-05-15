@@ -89,7 +89,7 @@ class DroughtMapViewer(base.DataSource):
                 "visible": False,
             },
         }
-        logger.info(f"Service layer dictionary created for Monthly Drought Outlook")
+        logger.info("Service layer dictionary created for Monthly Drought Outlook")
         return layer_dict
 
     def get_usdm_layer(self):
@@ -134,7 +134,7 @@ class DroughtMapViewer(base.DataSource):
                         "attributions": f'Tiles © <a href="{base_map_layer}">ArcGIS</a>',
                     },
                 },
-                "name": f'{base_map_layer.split("/")[-2].replace("_"," ").title()}',
+                "name": f'{base_map_layer.split("/")[-2].replace("_", " ").title()}',
             },
         }
         logger.info("Base layer dictionary created")

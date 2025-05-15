@@ -2,7 +2,6 @@ from intake.source import base
 import httpx
 from .utilities import (
     get_drought_area_type_dropdown,
-    get_drought_index,
     get_drought_dates,
 )
 import logging

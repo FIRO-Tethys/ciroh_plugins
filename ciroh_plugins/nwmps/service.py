@@ -1,4 +1,3 @@
-import requests
 import pandas as pd
 from shapely.geometry import MultiPolygon
 from pygeoogc import ArcGISRESTful

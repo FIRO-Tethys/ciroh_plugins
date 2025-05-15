@@ -1,26 +1,33 @@
 from intake.source import base
 import json
 import os
-from .utilities import get_drought_dates, get_geojson
+from .utilities import get_drought_dates, get_geojson, get_service_dropdown, DATA_SERVICES
 
 
 class Map(base.DataSource):
     container = "python"
     version = "0.0.1"
-    name = "drought_map_preconfigured"
+    name = "drought_map"
     visualization_args = {}
     visualization_group = "Drought_Monitor"
-    visualization_label = "Drought Map Preconfigured"
+    visualization_label = "Drought Map"
     visualization_type = "map"
     visualization_args = {
         "date": get_drought_dates(),
+        "service": get_service_dropdown(),
+        "layer": "text"
     }
     _user_parameters = []
 
-    def __init__(self, date, metadata=None, **kwargs):
+    def __init__(self, date, service, layer, metadata=None, **kwargs):
         self.date = date
+        self.service_url = service
+        if service.endswith('/'):
+            self.service_url = service[:-1]
+        self.service_key = self.service_url.split('/')[-2]
+        self.layer = layer
         super(Map, self).__init__(metadata=metadata)
-        
+
     def read(self):
         geojson = self.get_usdm_layer()
         geojson['crs'] = {"type": "name", "properties": {"name": "EPSG:4326"}}
@@ -67,28 +74,68 @@ class Map(base.DataSource):
             }
           ]
         }
+        geojson_layer = {
+            "configuration": {
+                "type": "VectorLayer",
+                "props": {
+                    "name": "USDM Archive",
+                    "source": {
+                        "type": "GeoJSON",
+                        "props": {},
+                        "geojson": geojson,
+                    }
+                },
+                "style": style
+            },
+            "legend": legend
+        }
+        print("service: ", self.service_url)
+        print("layer: ", self.layer)
+        service = DATA_SERVICES[self.service_key]
+        source_type = service["type"]
+        if source_type in ["WMS", "ESRI Image and Map Service"]:
+            other_layer = {
+                "configuration": {
+                    "type": "ImageLayer",
+                    "props": {
+                        "name": "wms_test",
+                        "source": {
+                            "type": source_type,
+                            "props": {
+                                "url": self.service_url,
+                                "params": {
+                                    "LAYERS": self.layer if source_type else f"show:{self.layer}"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        elif service["type"] == "Image Tile":
+            other_layer = {
+                "configuration": {
+                    "type": "TileLayer",
+                    "props": {
+                        "name": "imagetile_test",
+                        "source": {
+                            "type": "Image Tile",
+                            "props": {
+                                "url": self.service_url + "/tile/{z}/{y}/{x}"
+                            }
+                        }
+                    }
+                }
+            }
+
         return {
             "baseMap": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer",
             "layers": [
-                {
-                    "configuration": {
-                        "type": "VectorLayer",
-                        "props": {
-                            "name": "USDM Archive",
-                            "source": {
-                                "type": "GeoJSON",
-                                "props": {},
-                                "geojson": geojson,
-                            }
-                        },
-                        "style": style
-                    },
-                    "legend": legend
-                }
+                geojson_layer,
+                other_layer
             ],
             "layerControl": True,
         }
-        
+
     def get_usdm_layer(self):
         url = f"https://droughtmonitor.unl.edu/data/json/usdm_{self.date}.json"
         try:
@@ -97,4 +144,3 @@ class Map(base.DataSource):
             print(f"Unexpected error: {e}")
             return None
         return usdm_layer
-        

@@ -77,6 +77,32 @@ esri_urls = {
     "cpc_drought_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_drought_outlk/MapServer/",
 }
 
+ImageTile_urls = {
+    "vegdri_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/VegDRI_Example/MapServer",
+    "land_cover_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/Land_Cover_2020/MapServer/",
+    "land_use_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/Land_Use_2020/MapServer/",
+    "biomass_example_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/Biomass_2018_masked_tif/MapServer/",
+    "huc4_tile_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/HUC4_Simplified/MapServer/",
+    "county_tile_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/Counties_Simplified/MapServer/",
+    "nws_radar_tile_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/NWS_Radar_10k/MapServer",
+    "indemnity_tile_url_esri": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/Median_RMA_Payments/MapServer/",
+}
+
+MapServer_urls = {
+    "drought_out_url_esri": "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer",  # invalid link
+    "precip_out_url_esri": "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_6_10_day_outlk/MapServer",  # invalid link
+    "temp_out_url_esri": "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_6_10_day_outlk/MapServer",  # invalid link
+    "usdm_url_esri": "https://services5.arcgis.com/0OTVzJS4K09zlixn/ArcGIS/rest/services/USDM_archive/MapServer",  # Token required
+    "ahps_url_esri": "https://mapservices.weather.noaa.gov/raster/rest/services/obs/rfc_qpe/MapServer",
+    "cpc_6_10_day_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/",
+    "cpc_8_14_day_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_8_14_day_outlk/MapServer/",
+    "cpc_mthly_temp_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_mthly_temp_outlk/MapServer/",
+    "cpc_mthly_precip_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_mthly_precip_outlk/MapServer/",
+    "cpc_sea_temp_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_sea_temp_outlk/MapServer/",
+    "cpc_sea_precip_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_sea_precip_outlk/MapServer/",
+    "cpc_drought_outlk_url_esri": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_drought_outlk/MapServer/"
+}
+
 json_urls = {"usdm": "https://droughtmonitor.unl.edu/data/json/usdm"}
 # KML URLs
 kml_urls = {

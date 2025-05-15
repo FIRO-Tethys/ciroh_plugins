@@ -126,7 +126,7 @@ class NWMPSReachesSeries(base.DataSource):
             if product is None or not isinstance(product, dict):
                 continue
 
-            for simulation_name, simulation in product.items():
+            for _simulation_name, simulation in product.items():
                 units = simulation.get("units")
                 if units:
                     break

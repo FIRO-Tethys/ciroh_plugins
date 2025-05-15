@@ -389,7 +389,7 @@ DATA_SERVICES = {
                 "drawingInfoValueAttr": "classMaxValue",
             },
             {
-                "name": "10 Day - NWM Waterway Length Flooded (2)",  # TODO layer attributes don't show up 
+                "name": "10 Day - NWM Waterway Length Flooded (2)",  # TODO layer attributes don't show up
                 "filter_attr": "nwm_waterway_length_flooded_percent",
                 "id": 2,
                 "drawingInfoAttr": "uniqueValueInfos",

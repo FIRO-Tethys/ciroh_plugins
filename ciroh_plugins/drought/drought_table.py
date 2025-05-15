@@ -5,7 +5,6 @@ from .utilities import (
     get_drought_statistic_type,
     get_drought_data_type,
 )
-from datetime import datetime
 import logging
 
 # Set up logging

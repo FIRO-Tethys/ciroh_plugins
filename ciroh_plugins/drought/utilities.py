@@ -198,3 +198,90 @@ def get_geojson(url):
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return None
+
+
+DATA_SERVICES = {
+    "vegdri_conus_week_data": {
+        "name": "quickdri_vegdri_conus_week_data",
+        "url": "https://dmsdata.cr.usgs.gov/geoserver/quickdri_vegdri_conus_week_data/vegdri_conus_week_data/wms/",
+        "layers": [
+            {
+                "name": "vegdri_conus_week_data",
+                "id": "quickdri_vegdri_conus_week_data:vegdri_conus_week_data"
+            }
+        ],
+        "type": "WMS"
+    },
+    "quickdri_conus_week_data": {
+        "name": "quickdri_quickdri_conus_week_data",
+        "url": "https://dmsdata.cr.usgs.gov/geoserver/quickdri_quickdri_conus_week_data/quickdri_conus_week_data/wms/",
+        "layers": [
+            {
+                "name": "quickdri_conus_week_data",
+                "id": "quickdri_quickdri_conus_week_data:quickdri_conus_week_data",
+            }
+        ],
+        "type": "WMS"
+    },
+    "rfc_qpe": {
+        "name": "River Forecast Centers Quantative Precipitation Estimates (QPE)",
+        "url": "https://mapservices.weather.noaa.gov/raster/rest/services/obs/rfc_qpe/MapServer/",
+        "layers": [  # TODO add all layers
+            {
+                "name": "Observed (0)",
+                "id": 0,
+            },
+            {
+                "name": "Since 12Z Observed (inches) (1)",
+                "id": 1,
+            },
+            {
+                "name": "Last 1 Hours Observed (inches) (5)",
+                "id": 5,
+            },
+        ],
+        "type": "ESRI Image and Map Service"
+    },
+    "cpc_6_10_day_outlk": {
+        "name": "6-10 Day Temperature and Precipitation Outlooks",
+        "url": "https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/cpc_6_10_day_outlk/MapServer/",
+        "layers": [
+            {
+                "name": "CPC 6-10 Day Temperature Outlook (0)",
+                "id": 0
+            },
+            {
+                "name": "CPC 6-10 Day Precipitation Outlook (1)",
+                "id": 1
+            }
+        ],
+        "type": "ESRI Image and Map Service"
+    },
+    "VegDRI_Example": {
+        "name": "VegDRI Example",
+        "url": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/VegDRI_Example/MapServer/",
+        "layers": [],
+        "type": "Image Tile"
+    },
+    "Land_Cover_2020": {
+        "name": "Land Cover 2020",
+        "url": "https://tiles.arcgis.com/tiles/0OTVzJS4K09zlixn/arcgis/rest/services/Land_Cover_2020/MapServer/",
+        "layers": [],
+        "type": "Image Tile"
+    }
+}
+
+
+def get_service_dropdown():
+    return [
+        {
+            "label": service["name"],
+            "value": service["url"]
+        }
+        for _key, service in DATA_SERVICES.items()
+    ]
+
+
+def get_layers_dropdown(service_key):
+    layers = DATA_SERVICES[service_key]['layers']
+    return [{'label': layer['name'], 'value': layer['id']} for layer in layers]
