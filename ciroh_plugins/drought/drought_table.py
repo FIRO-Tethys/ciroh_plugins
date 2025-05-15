@@ -33,10 +33,10 @@ class DroughtDataTable(base.DataSource):
     visualization_type = "custom"
 
     def __init__(self, area_type, statistic_type, data_type, metadata=None):
-        self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
-        # self.mfe_unpkg_url = (
-        #     "https://unpkg.com/mfe_drought_table@0.0.1/dist/remoteEntry.js"
-        # )
+        # self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
+        self.mfe_unpkg_url = (
+            "https://unpkg.com/mfe_drought_table@0.0.1/dist/remoteEntry.js"
+        )
         self.mfe_scope = "mfe_drought_table"
         self.mfe_module = "./TableComponent"
         self.api_base_url = "https://droughtmonitor.unl.edu/DmData/DataTables.aspx/ReturnTabularDMAreaPercent"

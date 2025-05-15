@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class LayerFinder(base.DataSource):
+class DroughtMapLayerFinder(base.DataSource):
     """
     A data source class for NWMP services, extending Intake's DataSource.
     """

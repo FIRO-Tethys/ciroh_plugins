@@ -8,91 +8,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def get_base_map_layers_dropdown():
-    return [
-        {
-            "label": "ArcGIS Map Service Base Maps",
-            "options": [
-                {
-                    "label": "World Light Gray Base",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer",
-                },
-                {
-                    "label": "World Dark Gray Base",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer",
-                },
-                {
-                    "label": "World Topo Map",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer",
-                },
-                {
-                    "label": "World Imagery",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
-                },
-                {
-                    "label": "World Terrain Base",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer",
-                },
-                {
-                    "label": "World Street Map",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer",
-                },
-                {
-                    "label": "World Physical Map",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer",
-                },
-                {
-                    "label": "World Shaded Relief",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer",
-                },
-                {
-                    "label": "World Terrain Reference",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/World_Terrain_Reference/MapServer",
-                },
-                {
-                    "label": "World Hillshade Dark",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade_Dark/MapServer",
-                },
-                {
-                    "label": "World Hillshade",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
-                },
-                {
-                    "label": "World Boundaries and Places Alternate",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places_Alternate/MapServer",
-                },
-                {
-                    "label": "World Boundaries and Places",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Boundaries_and_Places/MapServer",
-                },
-                {
-                    "label": "World Reference Overlay",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Reference_Overlay/MapServer",
-                },
-                {
-                    "label": "World Transportation",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer",
-                },
-                {
-                    "label": "World Ocean Base ",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Base/MapServer",
-                },
-                {
-                    "label": "World Ocean Reference",
-                    "value": "https://server.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer",
-                },
-            ],
-        }
-    ]
-
-
-def rgb_to_hex(rgb_color):
-    """Convert RGB color to hex color code."""
-    if rgb_color and len(rgb_color) >= 3:
-        return "#{:02x}{:02x}{:02x}".format(*rgb_color[:3])
-    return "#000000"
-
-
 # Drought
 def get_drought_statistic_type():
     return [
@@ -143,7 +58,6 @@ def get_drought_data_type():
 
 
 def get_drought_index():
-
     return [
         {
             "label": "Drought Data Index",
