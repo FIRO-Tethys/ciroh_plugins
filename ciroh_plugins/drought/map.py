@@ -89,22 +89,22 @@ class Map(base.DataSource):
             },
             "legend": legend
         }
-        print("service: ", self.service_url)
-        print("layer: ", self.layer)
+
         service = DATA_SERVICES[self.service_key]
         source_type = service["type"]
+        layer_name = service["name"]
         if source_type in ["WMS", "ESRI Image and Map Service"]:
             other_layer = {
                 "configuration": {
                     "type": "ImageLayer",
                     "props": {
-                        "name": "wms_test",
+                        "name": layer_name,
                         "source": {
                             "type": source_type,
                             "props": {
                                 "url": self.service_url,
                                 "params": {
-                                    "LAYERS": self.layer if source_type else f"show:{self.layer}"
+                                    "LAYERS": self.layer if source_type == 'WMS' else f"show:{self.layer}"
                                 }
                             }
                         }
@@ -116,7 +116,7 @@ class Map(base.DataSource):
                 "configuration": {
                     "type": "TileLayer",
                     "props": {
-                        "name": "imagetile_test",
+                        "name": layer_name,
                         "source": {
                             "type": "Image Tile",
                             "props": {
