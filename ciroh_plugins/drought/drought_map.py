@@ -15,7 +15,6 @@ class DroughtMap(base.DataSource):
     visualization_args = {
         "date": get_drought_dates(),
         "service": get_service_dropdown(),
-        "layer": "text"
     }
     _user_parameters = []
 
@@ -26,6 +25,8 @@ class DroughtMap(base.DataSource):
             self.service_url = service[:-1]
         self.service_key = self.service_url.split('/')[-2]
         self.layer = layer
+        if "service.Layer" in kwargs:
+            self.layer = kwargs["service.Layer"]
         super(DroughtMap, self).__init__(metadata=metadata)
 
     def read(self):

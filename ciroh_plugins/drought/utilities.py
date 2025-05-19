@@ -304,7 +304,10 @@ def get_service_dropdown():
     return [
         {
             "label": service["name"],
-            "value": service["url"]
+            "value": service["url"],
+            "sub_args": {
+                "Layer": get_layers_dropdown(_key)
+            }
         }
         for _key, service in DATA_SERVICES.items()
     ]
