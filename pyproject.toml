@@ -52,5 +52,5 @@ zip-safe = false
 include = ["*"]
 
 [tool.setuptools.package-data]
-"ciroh_plugins" = ["static/*.png"]
+"ciroh_plugins" = ["static/*.png", "static/*.jpg"]
 "ciroh_plugins.drought" = ["*.json"]
