@@ -6,7 +6,7 @@ from .utilities import get_drought_dates, get_geojson, get_service_dropdown, DAT
 
 class DroughtMap(base.DataSource):
     container = "python"
-    version = "0.0.1"
+    version = "0.0.4"
     name = "drought_map"
     visualization_args = {}
     visualization_group = "Drought_Monitor"

@@ -13,7 +13,7 @@ class DroughtMapLayerFinder(base.DataSource):
     """
 
     container = "python"
-    version = "0.0.1"
+    version = "0.0.4"
     name = "drought_map_layer_finder"
 
     visualization_tags = ["national", "water", "model"]
