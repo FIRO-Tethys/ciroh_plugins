@@ -22,12 +22,13 @@ class NWMPMap(base.DataSource):
     ]
     _user_parameters = []
 
-    def __init__(self, service, layer, metadata=None, **kwargs):
+    def __init__(self, service, metadata=None, **kwargs):
         self.service_url = service
         if service.endswith('/'):
             self.service_url = service[:-1]
         self.service_key = self.service_url.split('/')[-2]
-        self.layer = layer
+        if "service.Layer" in kwargs:
+            self.layer = kwargs["service.Layer"]
         super(NWMPMap, self).__init__(metadata=metadata)
 
     def read(self):

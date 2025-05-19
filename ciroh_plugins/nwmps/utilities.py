@@ -530,7 +530,10 @@ def get_services_dropdown():
     return [
         {
             "label": service["name"],
-            "value": f"{service['url']}/{service_key}/MapServer/"
+            "value": f"{service['url']}/{service_key}/MapServer/",
+            "sub_args": {
+                "Layer": get_layers_dropdown(service_key)
+            }
         }
         for service_key, service in DATA_SERVICES.items()
     ]
@@ -539,16 +542,6 @@ def get_services_dropdown():
 def get_layers_dropdown(service_key):
     layers = DATA_SERVICES[service_key]['layers']
     return [{'label': layer['name'], 'value': layer['id']} for layer in layers]
-
-
-def get_service_layers():
-    layers = []
-    # Iterate over DATA_SERVICES
-    for _, service_value in DATA_SERVICES.items():
-        for layer in service_value["layers"]:
-            obj = {"label": layer["name"], "value": f"{layer['id']}"}
-            layers.append(obj)
-    return layers
 
 
 def rgb_to_hex(rgb_color):
