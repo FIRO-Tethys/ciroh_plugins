@@ -14,7 +14,7 @@ class LayerFinder(base.DataSource):
 
     container = "python"
     version = "0.0.4"
-    name = "nwmp_data_service"
+    name = "nwmp_map_layer_finder"
 
     visualization_tags = ["national", "water", "model", "nwm", "gauge", "flood"]
     visualization_description = (
@@ -32,16 +32,19 @@ class LayerFinder(base.DataSource):
         Initialize the NWMPService data source.
         """
         self.service_url = service
+        if service.endswith('/'):
+            self.service_url = service[:-1]
+        self.service_key = self.service_url.split('/')[-2]
         super().__init__(metadata=metadata)
 
     def read(self):
         """
         Read data from NWMP service and return a dictionary with title, data, and description.
         """
-        layer_names = get_layers_dropdown(self.service_url)
+        layers = get_layers_dropdown(self.service_key)
 
         return {
             "variable_name": "Layer Name",
             "initial_value": "0",
-            "variable_options_source": layer_names,
+            "variable_options_source": layers,
         }
