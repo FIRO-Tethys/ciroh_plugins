@@ -13,6 +13,12 @@ class NWMPMap(base.DataSource):
     visualization_args = {
         "service": get_services_dropdown(),
     }
+    visualization_description = (
+        "Provide various map services for National Water Model (NWM) and National Water Prediction Service (NWPS). "
+    )
+    visualization_tags = [
+        "map", "water", "water prediction", "flooding forecast"
+    ]
     _user_parameters = []
 
     def __init__(self, service, metadata=None, **kwargs):

@@ -16,9 +16,9 @@ class LayerFinder(base.DataSource):
     version = "0.0.4"
     name = "nwmp_map_layer_finder"
 
-    visualization_tags = ["national", "water", "model", "nwm", "gauge", "flood"]
+    visualization_tags = ["map layers", "water", "water prediction", "flooding forecast"]
     visualization_description = (
-        "Provides a summary of RFC gauges inside a HUC and their current flood status"
+        "Provides all available layers for the selected NWMP Map service"
     )
     visualization_args = {
         "service": "text",
