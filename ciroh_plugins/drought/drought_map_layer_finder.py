@@ -16,9 +16,9 @@ class DroughtMapLayerFinder(base.DataSource):
     version = "0.0.4"
     name = "drought_map_layer_finder"
 
-    visualization_tags = ["national", "water", "model"]
+    visualization_tags = ["map layers", "drought", "temperature", "precipitation"]
     visualization_description = (
-        "Provides a summary of RFC gauges inside a HUC and their current flood status"
+        "Provides all available layers for the selected Drought Map service"
     )
     visualization_args = {
         "service": "text",
