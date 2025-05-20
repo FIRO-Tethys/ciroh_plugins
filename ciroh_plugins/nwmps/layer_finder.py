@@ -32,13 +32,16 @@ class LayerFinder(base.DataSource):
         Initialize the NWMPService data source.
         """
         self.service_url = service
+        if service.endswith('/'):
+            self.service_url = service[:-1]
+        self.service_key = self.service_url.split('/')[-2]
         super().__init__(metadata=metadata)
 
     def read(self):
         """
         Read data from NWMP service and return a dictionary with title, data, and description.
         """
-        layer_names = get_layers_dropdown(self.service_url)
+        layer_names = get_layers_dropdown(self.service_key)
 
         return {
             "variable_name": "Layer Name",

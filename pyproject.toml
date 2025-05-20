@@ -35,6 +35,7 @@ Issues = "https://github.com/FIRO-Tethys/nwmp_plugins/issues"
 
 [project.entry-points."intake.drivers"]
 nwmp_data_service = "ciroh_plugins.nwmps.service:NWMPService"
+nwmp_map = "ciroh_plugins.nwmps.nwmp_map:NWMPMap"
 nwmp_layer = "ciroh_plugins.nwmps.layer_finder:LayerFinder"
 nwmp_reaches_series = "ciroh_plugins.nwmps.reaches:NWMPSReachesSeries"
 nwmp_gauges_series = "ciroh_plugins.nwmps.gauges:NWMPSGaugesSeries"

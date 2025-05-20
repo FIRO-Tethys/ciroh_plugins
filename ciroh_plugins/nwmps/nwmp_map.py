@@ -12,6 +12,7 @@ class NWMPMap(base.DataSource):
     visualization_type = "map"
     visualization_args = {
         "service": get_services_dropdown(),
+        "layer": "text"
     }
     visualization_description = (
         "Provide various map services for National Water Model (NWM) and National Water Prediction Service (NWPS). "
@@ -21,13 +22,12 @@ class NWMPMap(base.DataSource):
     ]
     _user_parameters = []
 
-    def __init__(self, service, metadata=None, **kwargs):
+    def __init__(self, service, layer, metadata=None, **kwargs):
         self.service_url = service
         if service.endswith('/'):
             self.service_url = service[:-1]
         self.service_key = self.service_url.split('/')[-2]
-        if "service.Layer" in kwargs:
-            self.layer = kwargs["service.Layer"]
+        self.layer = layer
         super(NWMPMap, self).__init__(metadata=metadata)
 
     def read(self):

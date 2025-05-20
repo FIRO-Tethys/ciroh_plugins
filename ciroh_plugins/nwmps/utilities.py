@@ -536,8 +536,7 @@ def get_services_dropdown():
     ]
 
 
-def get_layers_dropdown(service_url):
-    service_key = service_url.split('/')[-3]
+def get_layers_dropdown(service_key):
     layers = DATA_SERVICES[service_key]['layers']
     return [{'label': layer['name'], 'value': layer['id']} for layer in layers]
 
