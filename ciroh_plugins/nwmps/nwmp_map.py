@@ -11,8 +11,7 @@ class NWMPMap(base.DataSource):
     visualization_label = "NWMP Map"
     visualization_type = "map"
     visualization_args = {
-        "service": get_services_dropdown(),
-        "layer": "text"
+        "service": get_services_dropdown()
     }
     visualization_description = (
         "Provide various map services for National Water Model (NWM) and National Water Prediction Service (NWPS). "

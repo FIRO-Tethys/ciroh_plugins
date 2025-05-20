@@ -24,7 +24,7 @@ class LayerFinder(base.DataSource):
         "service": "text",
     }
     visualization_group = "NWMP"
-    visualization_label = "NWMP Layer Finder"
+    visualization_label = "NWMP Map Layer Finder"
     visualization_type = "variable_input"
 
     def __init__(self, service, metadata=None):
