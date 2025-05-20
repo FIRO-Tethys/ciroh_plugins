@@ -17,6 +17,12 @@ class DroughtMap(base.DataSource):
         "service": get_service_dropdown(),
         "layer": "text"
     }
+    visualization_description = (
+        "Provide various map services for the temperature, precipitation and drought. "
+    )
+    visualization_tags = [
+        "map", "drought", "temperature", "precipitation"
+    ]
     _user_parameters = []
 
     def __init__(self, date, service, layer, metadata=None, **kwargs):
