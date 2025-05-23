@@ -78,8 +78,6 @@ def get_drought_index():
 
 
 def get_drought_dates():
-    print("Getting dates for drought")
-    
     DATE_FORMAT = '%Y%m%d'
     today = date.today()
     today_str = today.strftime(DATE_FORMAT)
@@ -97,9 +95,12 @@ def get_drought_dates():
             # dates update every Monday
             if day_diff < 7 and (today_str != old_date and today_day_name != 'Monday'):
                 need_new_data = False
-            else:
                 filename = file
-    
+                break
+            else:  # delete old data file
+                os.remove(os.path.join(dir_path, file))
+
+    print(f"Getting dates for drought:{" doesn't" if not need_new_data else ''} need new data" )
     filepath = os.path.join(dir_path, filename)
     if not need_new_data:
         with open(filepath, 'r') as file:
