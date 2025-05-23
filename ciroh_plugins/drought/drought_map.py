@@ -38,7 +38,7 @@ class DroughtMap(base.DataSource):
         geojson = self.get_usdm_layer()
         geojson['crs'] = {"type": "name", "properties": {"name": "EPSG:4326"}}
         dir_path = os.path.dirname(__file__)
-        with open(f"{dir_path}/style.json") as file:
+        with open(f"{dir_path}/data/style.json") as file:
             style = json.load(file)
         legend = {
           "title": "USDM Archive",
