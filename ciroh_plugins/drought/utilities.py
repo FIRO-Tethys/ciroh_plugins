@@ -1,8 +1,10 @@
 import httpx
 import logging
-from .drought_area_types import drought_area_types
 import os
 import json
+from datetime import datetime, date
+from .drought_area_types import drought_area_types
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -77,21 +79,47 @@ def get_drought_index():
 
 def get_drought_dates():
     print("Getting dates for drought")
-    api_endpoint = (
-        "https://droughtmonitor.unl.edu/Maps/CompareTwoWeeks.aspx/ReturnDates"
-    )
-    client = httpx.Client(verify=False)
-    response = client.get(
-        f"{api_endpoint}", headers={"Content-Type": "application/json"}
-    )
-    data = response.json()
-    dropdown_items = []
-    dropdown_item = {"label": "Drought Dates", "options": []}
-    for item in data.get("d", []):
-        dropdown_item["options"].append(
-            {"value": f'{item.get("Value")}', "label": item.get("Text")}
+    
+    DATE_FORMAT = '%Y%m%d'
+    today = date.today()
+    today_str = today.strftime(DATE_FORMAT)
+    today_day_name = today.strftime('%A')
+    
+    module_path = os.path.dirname(__file__)
+    files = os.listdir(module_path)
+    
+    need_new_data = True
+    filename = f'drought_plugin_dates-{today_str}.json'
+    for file in files:
+        if file.startswith('drought_plugin_dates'):
+            old_date = datetime.strptime(file.split('-')[1].split('.')[0], DATE_FORMAT)
+            day_diff = (datetime.strptime(today_str, DATE_FORMAT) - old_date).days
+            # dates update every Monday
+            if day_diff < 7 and (today_str != old_date and today_day_name != 'Monday'):
+                need_new_data = False
+            else:
+                filename = file
+    
+    filepath = os.path.join(module_path, filename)
+    if not need_new_data:
+        with open(filepath, 'r') as file:
+            dropdown_items = json.load(file)
+    else:
+        api_endpoint = "https://droughtmonitor.unl.edu/Maps/CompareTwoWeeks.aspx/ReturnDates"
+        client = httpx.Client(verify=False)
+        response = client.get(
+            f"{api_endpoint}", headers={"Content-Type": "application/json"}
         )
-    dropdown_items.append(dropdown_item)
+        data = response.json()
+        dropdown_item = {"label": "Drought Dates", "options": []}
+        for item in data.get("d", []):
+            dropdown_item["options"].append(
+                {"value": f'{item.get("Value")}', "label": item.get("Text")}
+            )
+        dropdown_items = [dropdown_item]
+        with open(filepath, "w") as file:
+            json.dump(dropdown_items, file)
+    print("Need new drouht data: ", need_new_data)
     return dropdown_items
 
 
