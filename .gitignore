@@ -8,3 +8,4 @@ cache
 
 dist/
 build/
+ciroh_plugins/drought/data/drought_plugin_dates-*
