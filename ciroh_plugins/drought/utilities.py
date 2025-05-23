@@ -85,8 +85,8 @@ def get_drought_dates():
     today_str = today.strftime(DATE_FORMAT)
     today_day_name = today.strftime('%A')
     
-    module_path = os.path.dirname(__file__)
-    files = os.listdir(module_path)
+    dir_path = f'{os.path.dirname(__file__)}/data'
+    files = os.listdir(dir_path)
     
     need_new_data = True
     filename = f'drought_plugin_dates-{today_str}.json'
@@ -100,7 +100,7 @@ def get_drought_dates():
             else:
                 filename = file
     
-    filepath = os.path.join(module_path, filename)
+    filepath = os.path.join(dir_path, filename)
     if not need_new_data:
         with open(filepath, 'r') as file:
             dropdown_items = json.load(file)
@@ -119,7 +119,7 @@ def get_drought_dates():
         dropdown_items = [dropdown_item]
         with open(filepath, "w") as file:
             json.dump(dropdown_items, file)
-    print("Need new drouht data: ", need_new_data)
+
     return dropdown_items
 
 
@@ -146,7 +146,7 @@ def get_geojson(url):
 
 dir_path = os.path.dirname(__file__)
 rfc_qpe_layers = []
-with open(f"{dir_path}/rfc_qpe_layers.json") as file:
+with open(f"{dir_path}/data/rfc_qpe_layers.json") as file:
     rfc_qpe_layers = json.load(file)
 
 DATA_SERVICES = {
