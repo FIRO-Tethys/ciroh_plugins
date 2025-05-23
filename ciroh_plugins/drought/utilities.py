@@ -91,8 +91,8 @@ def get_drought_dates():
         if file.startswith('drought_plugin_dates'):
             old_date = datetime.strptime(file.split('-')[1].split('.')[0], DATE_FORMAT)
             day_diff = (datetime.strptime(today_str, DATE_FORMAT) - old_date).days
-            # dates update every Monday
-            if day_diff < 7 and (today_str != old_date and today_day_name != 'Monday'):
+            # dates update every Tuesday
+            if day_diff < 7 and (today_str != old_date and today_day_name != 'Tuesday'):
                 need_new_data = False
                 filename = file
                 break
