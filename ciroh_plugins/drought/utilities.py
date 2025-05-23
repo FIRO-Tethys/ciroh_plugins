@@ -3,9 +3,9 @@ import logging
 import os
 import json
 from datetime import datetime, date
-from .drought_area_types import drought_area_types
 
 
+DATA_DIR_PATH = f'{os.path.dirname(__file__)}/data'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,8 @@ def get_drought_statistic_type():
 
 
 def get_drought_area_type_dropdown():
+    with open(f'{DATA_DIR_PATH}/drought_area_types.json') as file:
+        drought_area_types = json.load(file)
     return drought_area_types
 
 
@@ -82,13 +84,10 @@ def get_drought_dates():
     today = date.today()
     today_str = today.strftime(DATE_FORMAT)
     today_day_name = today.strftime('%A')
-    
-    dir_path = f'{os.path.dirname(__file__)}/data'
-    files = os.listdir(dir_path)
-    
+
     need_new_data = True
     filename = f'drought_plugin_dates-{today_str}.json'
-    for file in files:
+    for file in os.listdir(DATA_DIR_PATH):
         if file.startswith('drought_plugin_dates'):
             old_date = datetime.strptime(file.split('-')[1].split('.')[0], DATE_FORMAT)
             day_diff = (datetime.strptime(today_str, DATE_FORMAT) - old_date).days
@@ -98,10 +97,10 @@ def get_drought_dates():
                 filename = file
                 break
             else:  # delete old data file
-                os.remove(os.path.join(dir_path, file))
+                os.remove(os.path.join(DATA_DIR_PATH, file))
 
-    print(f"Getting dates for drought:{" doesn't" if not need_new_data else ''} need new data" )
-    filepath = os.path.join(dir_path, filename)
+    print(f"Getting dates for drought:{" doesn't" if not need_new_data else ''} need new data")
+    filepath = os.path.join(DATA_DIR_PATH, filename)
     if not need_new_data:
         with open(filepath, 'r') as file:
             dropdown_items = json.load(file)
@@ -145,9 +144,8 @@ def get_geojson(url):
         return None
 
 
-dir_path = os.path.dirname(__file__)
 rfc_qpe_layers = []
-with open(f"{dir_path}/data/rfc_qpe_layers.json") as file:
+with open(f"{DATA_DIR_PATH}/rfc_qpe_layers.json") as file:
     rfc_qpe_layers = json.load(file)
 
 DATA_SERVICES = {
