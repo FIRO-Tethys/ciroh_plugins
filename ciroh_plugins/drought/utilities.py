@@ -99,7 +99,7 @@ def get_drought_dates():
             else:  # delete old data file
                 os.remove(os.path.join(DATA_DIR_PATH, file))
 
-    print(f"Getting dates for drought:{" doesn't" if not need_new_data else ''} need new data")
+    print(f'Getting dates for drought:{" does not" if not need_new_data else ""} need new data')
     filepath = os.path.join(DATA_DIR_PATH, filename)
     if not need_new_data:
         with open(filepath, 'r') as file:
