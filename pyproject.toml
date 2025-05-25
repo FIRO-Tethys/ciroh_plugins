@@ -54,4 +54,4 @@ include = ["*"]
 
 [tool.setuptools.package-data]
 "ciroh_plugins" = ["static/*.png", "static/*.jpg"]
-"ciroh_plugins.drought" = ["*.json"]
+"ciroh_plugins.drought" = ["data/*.json"]
