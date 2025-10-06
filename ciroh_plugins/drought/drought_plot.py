@@ -26,6 +26,7 @@ class DroughtDataTimeSeries(base.DataSource):
     visualization_group = "Drought_Monitor"
     visualization_label = "U.S. Drought Monitor Data Time Series"
     visualization_type = "plotly"
+    visualization_attribution = "NDMC"
 
     def __init__(self, area_type, data_index, metadata=None):
         self.api_base_url = "https://droughtmonitor.unl.edu/DmData/TimeSeries.aspx/ReturnBasicDmTimeSeries"

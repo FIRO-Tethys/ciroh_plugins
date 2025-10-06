@@ -29,6 +29,7 @@ class DroughtDataGraph(base.DataSource):
     visualization_group = "Drought_Monitor"
     visualization_label = "U.S. Drought Monitor Data Graph"
     visualization_type = "plotly"
+    visualization_attribution = "NDMC"
 
     def __init__(self, area_type, date, metadata=None):
 

@@ -29,6 +29,7 @@ class NWMPSReachesSeries(base.DataSource):
     visualization_group = "NWMP"
     visualization_label = "NWMP Reaches Time Series"
     visualization_type = "plotly"
+    visualization_attribution = "NOAA"
 
     def __init__(self, id, metadata=None):
         self.api_base_url = "https://api.water.noaa.gov/nwps/v1"

@@ -22,6 +22,7 @@ class DroughtMap(base.DataSource):
     visualization_tags = [
         "map", "drought", "temperature", "precipitation"
     ]
+    visualization_attribution = "NOAA, USGS, NDMC, USDA"
     _user_parameters = []
 
     def __init__(self, date, service, metadata=None, **kwargs):

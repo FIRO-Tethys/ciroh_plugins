@@ -31,6 +31,7 @@ class DroughtDataTable(base.DataSource):
     visualization_group = "Drought_Monitor"
     visualization_label = "U.S. Drought Monitor Data Table"
     visualization_type = "custom"
+    visualization_attribution = "NDMC"
 
     def __init__(self, area_type, statistic_type, data_type, metadata=None):
         # self.mfe_unpkg_url = "http://localhost:3000/remoteEntry.js"
