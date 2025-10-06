@@ -19,6 +19,7 @@ class NWMPMap(base.DataSource):
     visualization_tags = [
         "map", "water", "water prediction", "flooding forecast"
     ]
+    visualization_attribution = "NOAA"
     _user_parameters = []
 
     def __init__(self, service, metadata=None, **kwargs):

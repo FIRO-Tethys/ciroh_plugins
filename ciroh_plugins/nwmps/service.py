@@ -41,6 +41,7 @@ class NWMPService(base.DataSource):
     visualization_group = "NWMP"
     visualization_label = "NWMP Data Service"
     visualization_type = "card"
+    visualization_attribution = "NOAA"
 
     def __init__(self, service, huc_id, layer_id, metadata=None):
         """
