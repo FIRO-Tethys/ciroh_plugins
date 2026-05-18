@@ -147,6 +147,7 @@ class NWMPSGaugesSeries(base.DataSource):
 
             if stage_value == FLOOD_STAGE_PLACEHOLDER:
                 continue
+            cleaned_stage = int(stage_value) if stage_value.is_integer() else stage_value
 
             shapes.append(
                 {
@@ -154,8 +155,8 @@ class NWMPSGaugesSeries(base.DataSource):
                     "x0": 0,
                     "x1": 1,
                     "xref": "paper",
-                    "y0": stage_value,
-                    "y1": stage_value,
+                    "y0": cleaned_stage,
+                    "y1": cleaned_stage,
                     "yref": "y1",
                     "line": {
                         "color": category_colors.get(category.lower(), "black"),
@@ -168,10 +169,10 @@ class NWMPSGaugesSeries(base.DataSource):
             annotations.append(
                 {
                     "x": 0,
-                    "y": stage_value,
+                    "y": cleaned_stage,
                     "xref": "paper",
                     "yref": "y1",
-                    "text": f"{stage} {flood_data.get('stageUnits', '')} - {category}".strip(),
+                    "text": f"{cleaned_stage} {flood_data.get('stageUnits', '')} - {category}".strip(),
                     "showarrow": False,
                     "xanchor": "left",
                     "yanchor": "bottom",
