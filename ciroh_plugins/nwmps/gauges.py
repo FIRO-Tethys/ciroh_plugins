@@ -131,37 +131,52 @@ class NWMPSGaugesSeries(base.DataSource):
 
         for category, details in categories.items():
             stage = details.get("stage", None)
-            if stage is not None:
-                shapes.append(
-                    {
-                        "type": "line",
-                        "x0": 0,
-                        "x1": 1,
-                        "xref": "paper",
-                        "y0": stage,
-                        "y1": stage,
-                        "yref": "y1",
-                        "line": {
-                            "color": category_colors.get(category.lower(), "black"),
-                            "width": 2,
-                            "dash": "dash",
-                        },
-                    }
-                )
+            if stage is None:
+                continue
 
-                annotations.append(
-                    {
-                        "x": 0,
-                        "y": stage,
-                        "xref": "paper",
-                        "yref": "y1",
-                        "text": f"{stage} {flood_data.get('stageUnits', '')} - {category}".strip(),
-                        "showarrow": False,
-                        "xanchor": "left",
-                        "yanchor": "bottom",
-                        "font": {"color": "black", "size": 12},
-                    }
-                )
+            if isinstance(stage, str):
+                stage = stage.strip()
+                if not stage:
+                    continue
+
+            try:
+                stage_value = float(stage)
+            except (TypeError, ValueError):
+                continue
+
+            if stage_value == -9999.0:
+                continue
+
+            shapes.append(
+                {
+                    "type": "line",
+                    "x0": 0,
+                    "x1": 1,
+                    "xref": "paper",
+                    "y0": stage,
+                    "y1": stage,
+                    "yref": "y1",
+                    "line": {
+                        "color": category_colors.get(category.lower(), "black"),
+                        "width": 2,
+                        "dash": "dash",
+                    },
+                }
+            )
+
+            annotations.append(
+                {
+                    "x": 0,
+                    "y": stage,
+                    "xref": "paper",
+                    "yref": "y1",
+                    "text": f"{stage} {flood_data.get('stageUnits', '')} - {category}".strip(),
+                    "showarrow": False,
+                    "xanchor": "left",
+                    "yanchor": "bottom",
+                    "font": {"color": "black", "size": 12},
+                }
+            )
 
         return shapes, annotations
 
