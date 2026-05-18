@@ -18,7 +18,7 @@ def test_create_flood_events_skips_placeholder_stage_values():
     assert annotations[0]["text"] == "12 ft - minor"
 
 
-def test_create_flood_events_skips_invalid_string_stage_values():
+def test_create_flood_events_skips_all_invalid_stage_values():
     flood_data = {
         "stageUnits": "ft",
         "categories": {
