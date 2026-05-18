@@ -7,6 +7,7 @@ import logging
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+FLOOD_STAGE_PLACEHOLDER = -9999.0
 
 
 # This will be used for the TimeSeries of the NWM data
@@ -144,7 +145,7 @@ class NWMPSGaugesSeries(base.DataSource):
             except (TypeError, ValueError):
                 continue
 
-            if stage_value == -9999.0:
+            if stage_value == FLOOD_STAGE_PLACEHOLDER:
                 continue
 
             shapes.append(
@@ -153,8 +154,8 @@ class NWMPSGaugesSeries(base.DataSource):
                     "x0": 0,
                     "x1": 1,
                     "xref": "paper",
-                    "y0": stage,
-                    "y1": stage,
+                    "y0": stage_value,
+                    "y1": stage_value,
                     "yref": "y1",
                     "line": {
                         "color": category_colors.get(category.lower(), "black"),
@@ -167,7 +168,7 @@ class NWMPSGaugesSeries(base.DataSource):
             annotations.append(
                 {
                     "x": 0,
-                    "y": stage,
+                    "y": stage_value,
                     "xref": "paper",
                     "yref": "y1",
                     "text": f"{stage} {flood_data.get('stageUnits', '')} - {category}".strip(),
